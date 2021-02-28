@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>com.faburaya.Reusable.DataAccess</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>Felipe Vieira Aburaya</Authors>
+    <Product>Reusable.DataAccess</Product>
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquelle nützlich sind.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>data, access, azure, cosmos, xml</PackageTags>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Schema\secrets.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Schema\secrets.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="1.0.2" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.16.0" />
+  </ItemGroup>
+
+</Project>

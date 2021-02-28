@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data, model, azure, cosmos</PackageTags>
-    <Description>Ein wiederverwendbare Sammlung von Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Platforms>x64</Platforms>
     <PackageId>com.faburaya.Reusable.DataModels</PackageId>

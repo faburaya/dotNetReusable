@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataModels", "Reusable.DataModels\Reusable.DataModels.csproj", "{172ED8E7-BC72-4E3F-940A-469BDBC0E292}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.DataModels.UnitTests", "Reusable.DataModels.UnitTests\Reusable.DataModels.UnitTests.csproj", "{673A854E-3618-4A2B-94ED-CDE5E17EE0D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataModels.UnitTests", "Reusable.DataModels.UnitTests\Reusable.DataModels.UnitTests.csproj", "{673A854E-3618-4A2B-94ED-CDE5E17EE0D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess", "Reusable.DataAccess\Reusable.DataAccess.csproj", "{040D7851-E989-4AB8-BD2B-761DA4A7F88D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.UnitTests", "Reusable.DataAccess.UnitTests\Reusable.DataAccess.UnitTests.csproj", "{542AF22E-DF4A-41F4-A31A-028BBAD7671E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.IntegrationTests", "Reusable.DataAccess.IntegrationTests\Reusable.DataAccess.IntegrationTests.csproj", "{6A521388-E0F8-46F1-A368-89F3940F579C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,16 @@ Global
 		{673A854E-3618-4A2B-94ED-CDE5E17EE0D7}.Debug|x64.Build.0 = Debug|x64
 		{673A854E-3618-4A2B-94ED-CDE5E17EE0D7}.Release|x64.ActiveCfg = Release|x64
 		{673A854E-3618-4A2B-94ED-CDE5E17EE0D7}.Release|x64.Build.0 = Release|x64
+		{040D7851-E989-4AB8-BD2B-761DA4A7F88D}.Debug|x64.ActiveCfg = Debug|x64
+		{040D7851-E989-4AB8-BD2B-761DA4A7F88D}.Debug|x64.Build.0 = Debug|x64
+		{040D7851-E989-4AB8-BD2B-761DA4A7F88D}.Release|x64.ActiveCfg = Release|x64
+		{040D7851-E989-4AB8-BD2B-761DA4A7F88D}.Release|x64.Build.0 = Release|x64
+		{542AF22E-DF4A-41F4-A31A-028BBAD7671E}.Debug|x64.ActiveCfg = Debug|x64
+		{542AF22E-DF4A-41F4-A31A-028BBAD7671E}.Release|x64.ActiveCfg = Release|x64
+		{542AF22E-DF4A-41F4-A31A-028BBAD7671E}.Release|x64.Build.0 = Release|x64
+		{6A521388-E0F8-46F1-A368-89F3940F579C}.Debug|x64.ActiveCfg = Debug|x64
+		{6A521388-E0F8-46F1-A368-89F3940F579C}.Release|x64.ActiveCfg = Release|x64
+		{6A521388-E0F8-46F1-A368-89F3940F579C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
