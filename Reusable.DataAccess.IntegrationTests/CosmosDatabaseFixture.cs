@@ -10,7 +10,7 @@ namespace Reusable.DataAccess.IntegrationTests
     {
         private string ConnectionString => "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
-        private string DatabaseName => "CurrencyMonitor.DataAccess.IntegrationTests";
+        private string DatabaseName => "Reusable.DataAccess.IntegrationTests";
 
         private CosmosClient Client { get; }
 
@@ -72,4 +72,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class CosmosDatabaseFixture
 
-}// end of namespace CurrencyMonitor.DataAccess.IntegrationTests
+}// end of namespace Reusable.DataAccess.IntegrationTests

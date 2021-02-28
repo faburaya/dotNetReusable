@@ -3,15 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>com.faburaya.Reusable.DataAccess</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.DataAccess</Product>
-    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquelle nützlich sind.</Description>
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquellen nützlich sind.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data, access, azure, cosmos, xml</PackageTags>
     <Platforms>x64</Platforms>
+    <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

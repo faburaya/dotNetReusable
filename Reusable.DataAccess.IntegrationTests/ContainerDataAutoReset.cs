@@ -106,4 +106,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class ContainerDataAutoReset
 
-}// using namespace CurrencyMonitor.DataAccess.IntegrationTests
+}// using namespace Reusable.DataAccess.IntegrationTests

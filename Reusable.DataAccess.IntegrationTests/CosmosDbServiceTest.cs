@@ -340,4 +340,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class CosmosDbServiceTest
 
-}// end of namespace CurrencyMonitor.DataAccess.IntegrationTests
+}// end of namespace Reusable.DataAccess.IntegrationTests
