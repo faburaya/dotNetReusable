@@ -2,10 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <SignAssembly>false</SignAssembly>
+    <Version>1.0.2</Version>
+    <Authors>Felipe Vieira Aburaya</Authors>
+    <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>data, model, azure, cosmos</PackageTags>
+    <Description>Ein wiederverwendbare Sammlung von Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Platforms>x64</Platforms>
+    <PackageId>com.faburaya.Reusable.DataModels</PackageId>
+    <Company />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
