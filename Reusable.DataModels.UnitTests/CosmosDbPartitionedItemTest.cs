@@ -58,28 +58,6 @@ namespace Reusable.DataModels.UnitTests
         }
 
         [Fact]
-        public void GenerateIdFor_WhenItemsEqual_ThenDifferentId()
-        {
-            var obj1 = new TestClassItem { Key = "Schlüssel", Value = 32 };
-            var obj2 = new TestClassItem { Key = "Schlüssel", Value = 32 };
-
-            Assert.NotEqual(
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj1),
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj2)
-            );
-
-            Assert.NotEqual(
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj1),
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj1)
-            );
-
-            Assert.NotEqual(
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj2),
-                CosmosDbPartitionedItem<TestClassItem>.GenerateIdFor(obj2)
-            );
-        }
-
-        [Fact]
         public void CalculateHashOfJsonFor_WhenItemsEqual_ThenSameHash()
         {
             var obj1 = new TestClassItem { Key = "Schlüssel", Value = 32 };
@@ -141,7 +119,7 @@ namespace Reusable.DataModels.UnitTests
     /// Dieser Type sollte als Element der Datenbank gut funktionieren.
     /// </summary>
     [CosmosContainer(Name = "box")]
-    internal class TestClassItem
+    internal class TestClassItem : CosmosDbItem<TestClassItem>, IEquatable<TestClassItem>
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
@@ -151,19 +129,29 @@ namespace Reusable.DataModels.UnitTests
         public int Value { get; set; }
 
         public int IrrelevantForHashCalculation { get; set; }
+
+        public bool Equals(TestClassItem other)
+        {
+            return this.Key == other.Key && this.Value == other.Value;
+        }
     }
 
     /// <summary>
     /// Dieser Type funktioniert nicht als Element:
     /// ihm felht der Name des Containers.
     /// </summary>
-    internal class TestClassItemNoContainer
+    internal class TestClassItemNoContainer : IEquatable<TestClassItemNoContainer>
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
         public string Key { get; set; }
 
         public string Value { get; set; }
+
+        public bool Equals(TestClassItemNoContainer other)
+        {
+            return this.Key == other.Key && this.Value == other.Value;
+        }
     }
 
     /// <summary>
@@ -171,13 +159,18 @@ namespace Reusable.DataModels.UnitTests
     /// Partitionsschlüssel nicht vorhanden.
     /// </summary>
     [CosmosContainer(Name = "box")]
-    internal class TestClassItemNoKey
+    internal class TestClassItemNoKey : IEquatable<TestClassItemNoKey>
     {
         [JsonProperty("key")]
         public string Key { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
+
+        public bool Equals(TestClassItemNoKey other)
+        {
+            return this.Key == other.Key && this.Value == other.Value;
+        }
     }
 
     /// <summary>
@@ -186,12 +179,19 @@ namespace Reusable.DataModels.UnitTests
     /// </summary>
     [CosmosContainer(Name = "box")]
     internal class TestClassItemKeyLacksJson
+        : CosmosDbItem<TestClassItemKeyLacksJson>
+        , IEquatable<TestClassItemKeyLacksJson>
     {
         [CosmosPartitionKey]
         public string Key { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
+
+        public bool Equals(TestClassItemKeyLacksJson other)
+        {
+            return this.Key == other.Key && this.Value == other.Value;
+        }
     }
 
     /// <summary>
@@ -200,6 +200,8 @@ namespace Reusable.DataModels.UnitTests
     /// </summary>
     [CosmosContainer(Name = "box")]
     internal class TestClassItemWithTwoKeys
+        : CosmosDbItem<TestClassItemWithTwoKeys>
+        , IEquatable<TestClassItemWithTwoKeys>
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
@@ -207,6 +209,11 @@ namespace Reusable.DataModels.UnitTests
 
         [CosmosPartitionKey]
         public string Value { get; set; }
+
+        public bool Equals(TestClassItemWithTwoKeys other)
+        {
+            return this.Key == other.Key && this.Value == other.Value;
+        }
     }
 
 }// end of namespace Reusable.DataAccess.UnitTests

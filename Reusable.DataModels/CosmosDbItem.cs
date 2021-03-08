@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+
+using Newtonsoft.Json;
 
 namespace Reusable.DataModels
 {
@@ -6,17 +8,17 @@ namespace Reusable.DataModels
     /// Minimal Definition für ein Objekt, das in Azure Cosmos Datenbank gespeichert werden soll.
     /// Jede solches Objekt muss sich davon ableiten.
     /// </summary>
-    public abstract class CosmosDbItem
+    public abstract class CosmosDbItem<ItemType> where ItemType : class, IEquatable<ItemType>
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
-        public abstract string PartitionKeyValue { get; }
+        public string PartitionKeyValue
+            => CosmosDbPartitionedItem<ItemType>.GetPartitionKeyValue(this);
 
-        public virtual bool IsEquivalentInStorageTo<Type>(Type other) where Type : CosmosDbItem
+        public override int GetHashCode()
         {
-            return CosmosDbPartitionedItem<Type>.CalculateHashOfJsonFor((Type)this)
-                == CosmosDbPartitionedItem<Type>.CalculateHashOfJsonFor(other);
+            return CosmosDbPartitionedItem<ItemType>.CalculateHashOfJsonFor(this);
         }
 
         public override string ToString()
@@ -24,9 +26,9 @@ namespace Reusable.DataModels
             return JsonConvert.SerializeObject(this);
         }
 
-        public virtual ToType ShallowCopy<ToType>()
+        public virtual ItemType ShallowCopy()
         {
-            return (ToType)this.MemberwiseClone();
+            return (ItemType)this.MemberwiseClone();
         }
     }
 }

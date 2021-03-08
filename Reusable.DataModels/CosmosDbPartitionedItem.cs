@@ -14,24 +14,13 @@ namespace Reusable.DataModels
     {
         private static readonly PropertyInfo[] serializableProperties;
 
-        private static readonly Random _randomGenerator = new Random();
-
-        /// <summary>
-        /// Erstellt ein ID-Nummer für das gegebene Element.
-        /// </summary>
-        /// <returns>Die erstellte Identifikationsnummer.</returns>
-        public static string GenerateIdFor(ItemType item)
-        {
-            int hash = CalculateHashOfJsonFor(item);
-            return (_randomGenerator.Next() ^ hash).ToString("X8");
-        }
-
         /// <summary>
         /// Gibt ein Hash-Code zurück, das berechnet wird, sodass nur die
         /// JSON-serialisierbaren Properties berücksichtigt werden.
         /// </summary>
-        public static int CalculateHashOfJsonFor(ItemType item)
+        public static int CalculateHashOfJsonFor(object obj)
         {
+            var item = (ItemType)obj;
             int hashCode = 7;
             foreach (PropertyInfo property in serializableProperties)
             {
@@ -43,8 +32,9 @@ namespace Reusable.DataModels
 
         private static readonly PropertyInfo partitionKeyProperty;
 
-        public static string GetPartitionKeyValue(ItemType item)
+        public static string GetPartitionKeyValue(object obj)
         {
+            var item = (ItemType)obj;
             return (string)partitionKeyProperty.GetValue(item);
         }
 
