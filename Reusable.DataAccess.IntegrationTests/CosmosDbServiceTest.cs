@@ -74,10 +74,7 @@ namespace Reusable.DataAccess.IntegrationTests
             }
 
             var returnedItems = (from task in tasks select task.Result).OrderBy(item => item.Id);
-            Assert.Equal(
-                returnedItems,
-                storedItems,
-                new DataModels.CosmosStoredItemComparer<TestItem>());
+            Assert.Equal(returnedItems, storedItems);
         }
 
         private IEnumerable<TestItem> AddAndRetrieveItems(IList<TestItem> items,
@@ -109,10 +106,10 @@ namespace Reusable.DataAccess.IntegrationTests
             // Überprüft, dass das Element tatsächliche so gespeichert wurde:
             var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
             Assert.Equal(availableItems.Count() + 1, results.Count);
-            Assert.Contains(results, storedItem => storedItem.IsEquivalentInStorageTo(newItem));
+            Assert.Contains(results, storedItem => storedItem.Equals(newItem));
             foreach (TestItem item in availableItems)
             {
-                Assert.Contains(results, storedItem => storedItem.IsEquivalentInStorageTo(item));
+                Assert.Contains(results, storedItem => storedItem.Equals(item));
             }
         }
 
@@ -161,7 +158,7 @@ namespace Reusable.DataAccess.IntegrationTests
             var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
             foreach (TestItem item in availableItems)
             {
-                Assert.Contains(results, storedItem => storedItem.IsEquivalentInStorageTo(item));
+                Assert.Contains(results, storedItem => storedItem.Equals(item));
             }
             Assert.Equal(availableItems.Count(), results.Count());
         }
@@ -186,7 +183,7 @@ namespace Reusable.DataAccess.IntegrationTests
             foreach (TestItem item in itemsBeforeDeletion)
             {
                 Assert.DoesNotContain(itemsAfterDeletion,
-                    remainingItem => item.IsEquivalentInStorageTo(remainingItem));
+                    remainingItem => item.Equals(remainingItem));
             }
             Assert.Empty(itemsAfterDeletion);
         }
@@ -209,7 +206,7 @@ namespace Reusable.DataAccess.IntegrationTests
                 cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             Assert.DoesNotContain(itemsAfterDeletion,
-                remainingItem => item1.IsEquivalentInStorageTo(remainingItem));
+                remainingItem => item1.Equals(remainingItem));
 
             Assert.Equal(itemsBeforeDeletion.Count() - 1, itemsAfterDeletion.Count());
 
@@ -221,7 +218,7 @@ namespace Reusable.DataAccess.IntegrationTests
                 cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             Assert.DoesNotContain(itemsAfterDeletion,
-                remainingItem => item2.IsEquivalentInStorageTo(remainingItem));
+                remainingItem => item2.Equals(remainingItem));
 
             Assert.Equal(itemsBeforeDeletion.Count() - 2, itemsAfterDeletion.Count());
         }
@@ -277,7 +274,7 @@ namespace Reusable.DataAccess.IntegrationTests
                            expectedItem = request.expectedItem,
                            actualItem = request.promise.Result
                        },
-                x => Assert.True(x.actualItem.IsEquivalentInStorageTo(x.expectedItem))
+                x => Assert.True(x.actualItem.Equals(x.expectedItem))
             );
         }
 
@@ -316,7 +313,7 @@ namespace Reusable.DataAccess.IntegrationTests
 
             var retrievedItem = task.Result.FirstOrDefault();
             Assert.NotNull(retrievedItem);
-            Assert.True(itemToQuery.IsEquivalentInStorageTo(retrievedItem));
+            Assert.True(itemToQuery.Equals(retrievedItem));
         }
 
         [Fact]
@@ -333,9 +330,7 @@ namespace Reusable.DataAccess.IntegrationTests
                 source => source.Select(item => item).OrderBy(item => item.Family)).Result;
 
             Assert.NotEmpty(retrievedItems);
-            Assert.Equal(addedItems.OrderBy(item => item.Family),
-                         retrievedItems,
-                         new DataModels.CosmosStoredItemComparer<TestItem>());
+            Assert.Equal(addedItems.OrderBy(item => item.Family), retrievedItems);
         }
 
     }// end of class CosmosDbServiceTest

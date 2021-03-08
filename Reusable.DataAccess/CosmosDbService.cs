@@ -11,9 +11,8 @@ namespace Reusable.DataAccess
     /// <summary>
     /// Implementierung für einen Diest, der Zugang auf Azure Cosmos Datenbank gewährt.
     /// </summary>
-    public class CosmosDbService<ItemType>
-        : ICosmosDbService<ItemType>
-        where ItemType : DataModels.CosmosDbItem
+    public class CosmosDbService<ItemType> : ICosmosDbService<ItemType>
+        where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
         private readonly Container _container;
 
@@ -96,8 +95,8 @@ namespace Reusable.DataAccess
 
         public async Task<ItemType> AddItemAsync(ItemType item)
         {
-            item = item.ShallowCopy<ItemType>();
-            item.Id = DataModels.CosmosDbPartitionedItem<ItemType>.GenerateIdFor(item);
+            item = item.ShallowCopy();
+            item.Id = Guid.NewGuid().ToString();
             ItemResponse<ItemType> response = await _container.CreateItemAsync(item);
             return response.Resource;
         }

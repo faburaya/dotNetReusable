@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+
+using System.ComponentModel.DataAnnotations;
 
 using Newtonsoft.Json;
 
@@ -8,18 +10,22 @@ namespace Reusable.DataAccess.IntegrationTests
     /// Dieser Type sollte als Element der Datenbank gut funktionieren.
     /// </summary>
     [DataModels.CosmosContainer(Name = "CosmosDbServiceTest.TestItem")]
-    public class TestItem : DataModels.CosmosDbItem
+    public class TestItem : DataModels.CosmosDbItem<TestItem>, IEquatable<TestItem>
     {
         [Required]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
-        public override string PartitionKeyValue
-            => DataModels.CosmosDbPartitionedItem<TestItem>.GetPartitionKeyValue(this);
-
         [Required]
         [DataModels.CosmosPartitionKey]
         [JsonProperty(PropertyName = "family")]
         public string Family { get; set; }
+
+        public bool Equals(TestItem other)
+        {
+            return this.Id == other.Id
+                && this.Name == other.Name
+                && this.Family == other.Family;
+        }
     }
 }

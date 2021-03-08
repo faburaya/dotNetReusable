@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Reusable.DataAccess
@@ -6,9 +7,8 @@ namespace Reusable.DataAccess
     /// <summary>
     /// Gewährt Zugang auf ein Element in Azure Cosmos Datenbank.
     /// </summary>
-    public class CosmosDbItemAccess<DataType>
-        : ITableAccess<DataType>
-        where DataType : DataModels.CosmosDbItem
+    public class CosmosDbItemAccess<DataType> : ITableAccess<DataType>
+        where DataType : DataModels.CosmosDbItem<DataType>, IEquatable<DataType>
     {
         private ICosmosDbService<DataType> DatabaseService { get; }
 
