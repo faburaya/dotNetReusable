@@ -26,7 +26,7 @@ namespace Reusable.DataModels
             return JsonConvert.SerializeObject(this);
         }
 
-        public virtual ItemType ShallowCopy()
+        public ItemType ShallowCopy()
         {
             return (ItemType)this.MemberwiseClone();
         }

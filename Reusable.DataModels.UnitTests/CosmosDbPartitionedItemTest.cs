@@ -116,10 +116,10 @@ namespace Reusable.DataModels.UnitTests
     }
 
     /// <summary>
-    /// Dieser Type sollte als Element der Datenbank gut funktionieren.
+    /// Dieser Typ sollte als Element der Datenbank gut funktionieren.
     /// </summary>
     [CosmosContainer(Name = "box")]
-    internal class TestClassItem : CosmosDbItem<TestClassItem>, IEquatable<TestClassItem>
+    internal class TestClassItem
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
@@ -129,79 +129,55 @@ namespace Reusable.DataModels.UnitTests
         public int Value { get; set; }
 
         public int IrrelevantForHashCalculation { get; set; }
-
-        public bool Equals(TestClassItem other)
-        {
-            return this.Key == other.Key && this.Value == other.Value;
-        }
     }
 
     /// <summary>
-    /// Dieser Type funktioniert nicht als Element:
+    /// Dieser Typ funktioniert nicht als Element:
     /// ihm felht der Name des Containers.
     /// </summary>
-    internal class TestClassItemNoContainer : IEquatable<TestClassItemNoContainer>
+    internal class TestClassItemNoContainer
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
         public string Key { get; set; }
 
         public string Value { get; set; }
-
-        public bool Equals(TestClassItemNoContainer other)
-        {
-            return this.Key == other.Key && this.Value == other.Value;
-        }
     }
 
     /// <summary>
-    /// Dieser Type funktioniert nicht als Element:
+    /// Dieser Typ funktioniert nicht als Element:
     /// Partitionsschlüssel nicht vorhanden.
     /// </summary>
     [CosmosContainer(Name = "box")]
-    internal class TestClassItemNoKey : IEquatable<TestClassItemNoKey>
+    internal class TestClassItemNoKey
     {
         [JsonProperty("key")]
         public string Key { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
-
-        public bool Equals(TestClassItemNoKey other)
-        {
-            return this.Key == other.Key && this.Value == other.Value;
-        }
     }
 
     /// <summary>
-    /// Dieser Type funktioniert nicht als Element:
+    /// Dieser Typ funktioniert nicht als Element:
     /// Es fehlt dem Partitionsschlüssel ein Name aus JSON-Serialisierung.
     /// </summary>
     [CosmosContainer(Name = "box")]
     internal class TestClassItemKeyLacksJson
-        : CosmosDbItem<TestClassItemKeyLacksJson>
-        , IEquatable<TestClassItemKeyLacksJson>
     {
         [CosmosPartitionKey]
         public string Key { get; set; }
 
         [JsonProperty("value")]
         public string Value { get; set; }
-
-        public bool Equals(TestClassItemKeyLacksJson other)
-        {
-            return this.Key == other.Key && this.Value == other.Value;
-        }
     }
 
     /// <summary>
-    /// Dieser Type funktioniert nicht als Element:
+    /// Dieser Typ funktioniert nicht als Element:
     /// Nur ein einzelner Partitionsschlüssel ist erlaubt.
     /// </summary>
     [CosmosContainer(Name = "box")]
     internal class TestClassItemWithTwoKeys
-        : CosmosDbItem<TestClassItemWithTwoKeys>
-        , IEquatable<TestClassItemWithTwoKeys>
     {
         [CosmosPartitionKey]
         [JsonProperty("key")]
@@ -209,11 +185,6 @@ namespace Reusable.DataModels.UnitTests
 
         [CosmosPartitionKey]
         public string Value { get; set; }
-
-        public bool Equals(TestClassItemWithTwoKeys other)
-        {
-            return this.Key == other.Key && this.Value == other.Value;
-        }
     }
 
 }// end of namespace Reusable.DataAccess.UnitTests
