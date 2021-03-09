@@ -10,6 +10,7 @@ namespace Reusable.DataAccess
     /// </summary>
     /// <typeparam name="ItemType">Der Typ in der Datenbank, mit dem man umgehen will.</typeparam>
     public interface ICosmosDbService<ItemType>
+        where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
         /// <summary>
         /// Fragt die Datenbank ab.
@@ -44,6 +45,17 @@ namespace Reusable.DataAccess
         /// <param name="partitionKey">Der Partitionsschlüssel.</param>
         /// <param name="id">Die Identifikation des Elements.</param>
         Task DeleteItemAsync(string partitionKey, string id);
+
+        /// <summary>
+        /// Löscht viele Elemente in der Datenbank durch transaktionale Batchvorgänge.
+        /// </summary>
+        /// <remarks>
+        /// Azure Cosmos Datenbank gewährt transaktionale Batchvorgänge,
+        /// insofern alle Elemente zu der gleichen Partition gehören.
+        /// </remarks>
+        /// <param name="partitionKey">Der Partitionsschlüssel aller Elemente.</param>
+        /// <param name="ids">Die Identifikatiosnummern der zu löschenden Elemente.</param>
+        Task DeleteBatchAsync(string partitionKey, IList<string> ids);
 
         /// <summary>
         /// Ändert ein vorherig bestehendes Element, oder

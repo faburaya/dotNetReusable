@@ -224,6 +224,88 @@ namespace Reusable.DataAccess.IntegrationTests
         }
 
         [Fact]
+        public void DeleteBatch_WhenAllDeleted_ThenNothingRemains()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Vieira Aburaya";
+            var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
+                new TestItem { Name = "Felipe", Family = family },
+                new TestItem { Name = "Renata", Family = family },
+            }, cosmosDataAccess);
+
+            Fixture.Service.DeleteBatchAsync(family,
+                (from item in itemsBeforeDeletion select item.Id).ToList()).Wait();
+
+            var itemsAfterDeletion =
+                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+
+            foreach (TestItem item in itemsBeforeDeletion)
+            {
+                Assert.DoesNotContain(itemsAfterDeletion,
+                    remainingItem => item.Equals(remainingItem));
+            }
+            Assert.Empty(itemsAfterDeletion);
+        }
+
+        [Fact]
+        public void DeleteBatch_WhenSomeDeleted_ThenOthersRemain()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Vieira Aburaya";
+            var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
+                new TestItem { Name = "Felipe", Family = family },
+                new TestItem { Name = "Renata", Family = family },
+                new TestItem { Name = "Caroline", Family = family },
+            }, cosmosDataAccess);
+
+            var itemsToDelete = itemsBeforeDeletion.Take(2);
+
+            Fixture.Service.DeleteBatchAsync(family,
+                (from item in itemsToDelete select item.Id).ToList()).Wait();
+
+            var itemsAfterDeletion =
+                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+
+            foreach (TestItem item in itemsToDelete)
+            {
+                Assert.DoesNotContain(itemsAfterDeletion,
+                    remainingItem => item.Equals(remainingItem));
+            }
+            Assert.Equal(itemsBeforeDeletion.Count() - itemsToDelete.Count(), itemsAfterDeletion.Count);
+        }
+
+        [Fact]
+        public void DeleteBatch_WhenTooMany_ThenExecuteInMultipleBatches()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Familie";
+            const int countItems = 250;
+            var itemsToAdd = new List<TestItem>(countItems);
+            for (int idx = 0; idx < countItems; ++idx)
+            {
+                itemsToAdd.Add(new TestItem { Name = $"Name{idx}", Family = family });
+            }
+
+            var itemsBeforeDeletion = AddAndRetrieveItems(itemsToAdd, cosmosDataAccess);
+
+            Fixture.Service.DeleteBatchAsync(family,
+                (from item in itemsBeforeDeletion select item.Id).ToList()).Wait();
+
+            var itemsAfterDeletion =
+                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+
+            foreach (TestItem item in itemsBeforeDeletion)
+            {
+                Assert.DoesNotContain(itemsAfterDeletion,
+                    remainingItem => item.Equals(remainingItem));
+            }
+            Assert.Empty(itemsAfterDeletion);
+        }
+
+        [Fact]
         public void GetItemCount_BeforeAndAfterAddingNew()
         {
             using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();

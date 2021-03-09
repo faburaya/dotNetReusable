@@ -44,30 +44,41 @@ namespace Reusable.DataAccess.IntegrationTests
             return results;
         }
 
+        private static readonly int maxNumTasks = 20;
+
         /// <summary>
         /// Fügt dem Container neue Elemente hinzu.
         /// </summary>
         /// <param name="items">Die hinzuzufügenden Elemente.</param>
         public IEnumerable<TestItem> AddToContainer(IList<TestItem> items)
         {
-            var randomizer = new Random();
+            var tasks = new List<Task<ItemResponse<TestItem>>>(capacity: maxNumTasks);
+            var addedItems = new List<TestItem>(capacity: items.Count);
 
-            var tasks = new Task<ItemResponse<TestItem>>[items.Count];
-            for (int idx = 0; idx < tasks.Length; ++idx)
+            var randomizer = new Random();
+            for (int idx = 0; idx < items.Count; ++idx)
             {
                 TestItem item = items[idx];
                 item.Id = randomizer.Next().ToString("X8");
-                tasks[idx] = Container.CreateItemAsync(item, new PartitionKey(item.PartitionKeyValue));
-            }
-            Task.WaitAll(tasks);
+                var asyncCreateTask = Container.CreateItemAsync(item, new PartitionKey(item.PartitionKeyValue));
 
-            return (from task in tasks select task.Result.Resource);
+                tasks.Add(asyncCreateTask);
+                if (tasks.Count == maxNumTasks || idx + 1 == items.Count)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                    addedItems.AddRange(from task in tasks select task.Result.Resource);
+                    tasks.Clear();
+                }
+            }
+
+            return addedItems;
         }
 
         private void EraseAllItemsInContainer()
         {
             var allItems = CollectResultsFromQuery(source => source.Select(item => item));
-            var tasks = new List<Task>(capacity: allItems.Count());
+
+            var tasks = new List<Task>(capacity: maxNumTasks);
             foreach (var item in allItems)
             {
                 Task deleteAsyncTask =
@@ -75,7 +86,14 @@ namespace Reusable.DataAccess.IntegrationTests
                         item.Id, new PartitionKey(item.PartitionKeyValue));
 
                 tasks.Add(deleteAsyncTask);
+
+                if (tasks.Count == maxNumTasks)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                    tasks.Clear();
+                }
             }
+
             Task.WaitAll(tasks.ToArray());
         }
 

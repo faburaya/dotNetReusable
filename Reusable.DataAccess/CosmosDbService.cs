@@ -106,6 +106,26 @@ namespace Reusable.DataAccess
             await _container.DeleteItemAsync<ItemType>(id, new PartitionKey(partitionKey));
         }
 
+        public async Task DeleteBatchAsync(string partitionKey, IList<string> ids)
+        {
+            const int maxItemsPerBatch = 100;
+            for (int itemIdx = 0; itemIdx < ids.Count; itemIdx += maxItemsPerBatch)
+            {
+                IEnumerable<string> slice = ids.Skip(itemIdx).Take(maxItemsPerBatch);
+                TransactionalBatch batch = _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+                foreach (string id in slice)
+                {
+                    batch = batch.DeleteItem(id);
+                }
+
+                using TransactionalBatchResponse transaction = await batch.ExecuteAsync();
+                if (!transaction.IsSuccessStatusCode)
+                {
+                    throw new ApplicationException($"Batch (ab Element #{itemIdx} aus {ids.Count}) ist mit HTTP {transaction.StatusCode} gescheitert: {transaction.ErrorMessage}");
+                }
+            }
+        }
+
         public async Task UpsertItemAsync(string partitionKey, ItemType item)
         {
             if (string.IsNullOrWhiteSpace(item.Id))
