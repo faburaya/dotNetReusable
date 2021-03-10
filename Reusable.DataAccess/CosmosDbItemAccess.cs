@@ -10,6 +10,8 @@ namespace Reusable.DataAccess
     public class CosmosDbItemAccess<DataType> : ITableAccess<DataType>
         where DataType : DataModels.CosmosDbItem<DataType>, IEquatable<DataType>
     {
+        private static readonly int maxAsyncTasks = 20;
+
         private ICosmosDbService<DataType> DatabaseService { get; }
 
         private List<Task> Insertions { get; }
@@ -27,7 +29,14 @@ namespace Reusable.DataAccess
 
         public void Insert(DataType obj)
         {
-            Insertions.Add(DatabaseService.AddItemAsync(obj));
+            var asyncAdd = DatabaseService.AddItemAsync(obj);
+
+            if (Insertions.Count == maxAsyncTasks)
+            {
+                Commit();
+            }
+
+            Insertions.Add(asyncAdd);
         }
 
         public void Commit()
