@@ -81,13 +81,13 @@ namespace Reusable.DataAccess
 
             if (!query.HasMoreResults)
             {
-                throw new ApplicationException("Datenbankabfrage für Anzahl von Elementen hat ein leeres Ergebnis zurückgegeben!");
+                throw new ServiceException("Datenbankabfrage für Anzahl von Elementen hat ein leeres Ergebnis zurückgegeben!");
             }
 
             var response = await query.ReadNextAsync();
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                throw new ApplicationException("Datenbankabfrage für Anzahl von Elementen ist gescheitert!");
+                throw new ServiceException($"Datenbankabfrage für Anzahl von Elementen ist mit HTTP {response.StatusCode} gescheitert!");
             }
 
             return response.First();
@@ -121,7 +121,7 @@ namespace Reusable.DataAccess
                 using TransactionalBatchResponse transaction = await batch.ExecuteAsync();
                 if (!transaction.IsSuccessStatusCode)
                 {
-                    throw new ApplicationException($"Batch (ab Element #{itemIdx} aus {ids.Count}) ist mit HTTP {transaction.StatusCode} gescheitert: {transaction.ErrorMessage}");
+                    throw new ServiceException($"Batch (ab Element #{itemIdx} aus {ids.Count}) ist mit HTTP {transaction.StatusCode} gescheitert: {transaction.ErrorMessage}");
                 }
             }
         }
