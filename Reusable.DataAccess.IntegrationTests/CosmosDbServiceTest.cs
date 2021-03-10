@@ -164,6 +164,83 @@ namespace Reusable.DataAccess.IntegrationTests
         }
 
         [Fact]
+        public void UpsertBatch_WhenPresent_ThenUpdateIt()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Vieira Aburaya";
+            var itemsBeforeUpdate = AddAndRetrieveItems(new List<TestItem> {
+                new TestItem { Name = "Felipe", Family = family },
+                new TestItem { Name = "Renata", Family = family },
+                new TestItem { Name = "Caroline", Family = family },
+            }, cosmosDataAccess);
+
+            var itemsToUpdate = (
+                from item in itemsBeforeUpdate
+                select new TestItem { Id = item.Id, Name = item.Name + '*', Family = item.Family }
+            ).ToList();
+
+            Fixture.Service.UpsertBatchAsync(itemsToUpdate).Wait();
+
+            VerifyUpsertedBatch(cosmosDataAccess, itemsToUpdate);
+        }
+
+        [Fact]
+        public void UpsertBatch_WhenNotPresent_ThenAddIt()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Vieira Aburaya";
+            var itemsBeforeUpdate = AddAndRetrieveItems(new List<TestItem> {
+                new TestItem { Name = "Felipe", Family = family },
+                new TestItem { Name = "Renata", Family = family },
+            }, cosmosDataAccess);
+
+            var itemsToUpdate = (
+                from item in itemsBeforeUpdate
+                select new TestItem { Id = item.Id, Name = item.Name + '*', Family = item.Family }
+            ).ToList();
+
+            itemsToUpdate.Add(
+                new TestItem { Id = Guid.NewGuid().ToString(), Name = "Caroline", Family = family });
+
+            Fixture.Service.UpsertBatchAsync(itemsToUpdate).Wait();
+
+            VerifyUpsertedBatch(cosmosDataAccess, itemsToUpdate);
+        }
+
+        [Fact]
+        public void UpsertBatch_WhenTooMany_ThenExecuteInMultipleBatches()
+        {
+            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+
+            const string family = "Familie";
+            const int countItems = 250;
+            var itemsToAdd = new List<TestItem>(countItems);
+            for (int idx = 0; idx < countItems; ++idx)
+            {
+                itemsToAdd.Add(
+                    new TestItem { Id = idx.ToString("X4"), Name = $"Name{idx}", Family = family });
+            }
+
+            Fixture.Service.UpsertBatchAsync(itemsToAdd).Wait();
+
+            VerifyUpsertedBatch(cosmosDataAccess, itemsToAdd);
+        }
+
+        private void VerifyUpsertedBatch(ContainerDataAutoReset cosmosDataAccess,
+                                         IList<TestItem> itemsToUpsert)
+        {
+            // Überprüft, dass die Elemente tatsächliche so gespeichert wurde:
+            var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            foreach (TestItem item in itemsToUpsert)
+            {
+                Assert.Contains(results, storedItem => storedItem.Equals(item));
+            }
+            Assert.Equal(itemsToUpsert.Count, results.Count());
+        }
+
+        [Fact]
         public void DeleteItem_WhenDistinct_IfAllDeleted_ThenNothingRemains()
         {
             using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();

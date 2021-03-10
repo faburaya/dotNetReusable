@@ -74,6 +74,15 @@ namespace Reusable.DataAccess
         /// gefunden und die ganze Operation scheitert.
         /// </remarks>
         Task UpsertItemAsync(string partitionKey, ItemType item);
+
+        /// <summary>
+        /// Führt ein transaktionales Batch von Upsert-Vorgänge.
+        /// </summary>
+        /// <param name="items">
+        /// Eine Liste der zu ändernden Elemente.
+        /// Alle Elemente müssen zu der gleichen Partition gehören.
+        /// </param>
+        Task UpsertBatchAsync(IList<ItemType> items);
     }
 
 }// namespace Reusable.DataAccess

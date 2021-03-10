@@ -14,6 +14,10 @@ namespace Reusable.DataAccess
     public class CosmosDbService<ItemType> : ICosmosDbService<ItemType>
         where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
+        private static readonly int maxItemsPerBatch = 100;
+
+        private Common.UidGenerator<ItemType> _idGenerator;
+
         private readonly Container _container;
 
         /// <summary>
@@ -23,11 +27,15 @@ namespace Reusable.DataAccess
         /// </summary>
         /// <param name="databaseName">Der Name der Datenbank.</param>
         /// <param name="connectionString">The Verbindungszeichenfolge für die Datenbank.</param>
+        /// <param name="idGenerator">Implementierung für die Beschafung einer einzigartigen ID.</param>
         /// <returns>Die erstellte Instanz von <see cref="CosmosDbService{ItemType}"/></returns>
-        public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(string databaseName, string connectionString)
+        public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(
+            string databaseName,
+            string connectionString,
+            Common.UidGenerator<ItemType> idGenerator)
         {
             var client = new CosmosClient(connectionString);
-            var service = new CosmosDbService<ItemType>(client, databaseName);
+            var service = new CosmosDbService<ItemType>(client, databaseName, idGenerator);
             DatabaseResponse response = await client.CreateDatabaseIfNotExistsAsync(databaseName);
             await response.Database.CreateContainerIfNotExistsAsync(
                 DataModels.CosmosDbPartitionedItem<ItemType>.ContainerName,
@@ -36,8 +44,20 @@ namespace Reusable.DataAccess
             return service;
         }
 
-        private CosmosDbService(CosmosClient dbClient, string databaseName)
+        public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(
+            string databaseName,
+            string connectionString)
         {
+            return await InitializeCosmosClientInstanceAsync(databaseName,
+                                                             connectionString,
+                                                             new Common.UidGenerator<ItemType>());
+        }
+
+        private CosmosDbService(CosmosClient dbClient,
+                                string databaseName,
+                                Common.UidGenerator<ItemType> idGenerator)
+        {
+            _idGenerator = idGenerator;
             _container = dbClient.GetContainer(databaseName, DataModels.CosmosDbPartitionedItem<ItemType>.ContainerName);
         }
 
@@ -96,7 +116,7 @@ namespace Reusable.DataAccess
         public async Task<ItemType> AddItemAsync(ItemType item)
         {
             item = item.ShallowCopy();
-            item.Id = Guid.NewGuid().ToString();
+            item.Id = _idGenerator.GenerateIdFor(item);
             ItemResponse<ItemType> response = await _container.CreateItemAsync(item);
             return response.Resource;
         }
@@ -108,7 +128,6 @@ namespace Reusable.DataAccess
 
         public async Task DeleteBatchAsync(string partitionKey, IList<string> ids)
         {
-            const int maxItemsPerBatch = 100;
             for (int itemIdx = 0; itemIdx < ids.Count; itemIdx += maxItemsPerBatch)
             {
                 IEnumerable<string> slice = ids.Skip(itemIdx).Take(maxItemsPerBatch);
@@ -147,6 +166,38 @@ namespace Reusable.DataAccess
             }
 
             await _container.UpsertItemAsync(item);
+        }
+
+        public async Task UpsertBatchAsync(IList<ItemType> items)
+        {
+            if (items.Count == 0)
+            {
+                return;
+            }
+
+            string partitionKey = items.First().PartitionKeyValue;
+            ItemType anItemOutOfPartition = (from item in items
+                                             where item.PartitionKeyValue != partitionKey
+                                             select item).FirstOrDefault();
+
+            if (anItemOutOfPartition != null)
+            {
+                throw new ArgumentException($"Element.PartitionKeyValue = '{anItemOutOfPartition.PartitionKeyValue}' gehört nicht zur gleichen Partition der anderen Elemente (= '{partitionKey}')");
+            }
+
+            for (int idx = 0; idx < items.Count; idx += maxItemsPerBatch)
+            {
+                TransactionalBatch batch = _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+
+                var slice = items.Skip(idx).Take(maxItemsPerBatch);
+                foreach (ItemType item in slice)
+                {
+                    batch = batch.UpsertItem(item);
+                }
+
+                // wartet auf Transaktion und entsorgt sie
+                using var transaction = await batch.ExecuteAsync();
+            }
         }
 
     }// end of class CosmosDbService
