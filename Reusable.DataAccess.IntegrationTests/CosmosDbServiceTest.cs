@@ -7,7 +7,8 @@ using Xunit;
 
 namespace Reusable.DataAccess.IntegrationTests
 {
-    public class CosmosDbServiceTest : IClassFixture<CosmosDatabaseFixture>
+    [Collection("IntegrationTests")]
+    public class CosmosDbServiceTest
     {
         private CosmosDatabaseFixture Fixture { get; }
 
@@ -23,8 +24,8 @@ namespace Reusable.DataAccess.IntegrationTests
             Fixture.Service.AddItemAsync(expectedItem).Wait();
 
             // Überprüfung:
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
-            var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             Assert.Single(results);
             TestItem actualItem = results.First();
@@ -58,8 +59,8 @@ namespace Reusable.DataAccess.IntegrationTests
             Task.WaitAll(tasks);
 
             // Überprüfung:
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
-            var storedItems = cosmosDataAccess.CollectResultsFromQuery(
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+            var storedItems = cosmosDirectAccess.CollectResultsFromQuery(
                 source => source.Select(item => item).OrderBy(item => item.Id));
             Assert.Equal(expectedItems.Count, storedItems.Count());
             Assert.All(storedItems, item => Assert.False(string.IsNullOrEmpty(item.Id)));
@@ -78,9 +79,9 @@ namespace Reusable.DataAccess.IntegrationTests
         }
 
         private IEnumerable<TestItem> AddAndRetrieveItems(IList<TestItem> items,
-                                                          ContainerDataAutoReset cosmosDataAccess)
+                                                          ContainerDataAutoReset cosmosDirectAccess)
         {
-            var itemsAddedToContainer = cosmosDataAccess.AddToContainer(items);
+            var itemsAddedToContainer = cosmosDirectAccess.AddToContainer(items);
 
             if (itemsAddedToContainer.Count() != items.Count)
             {
@@ -93,18 +94,18 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void UpsertItem_WhenNotPresent_ThenAddIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var availableItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var newItem = new TestItem { Id = "CAFEBABE", Name = "Liane", Family = "Oliveira" };
             Fixture.Service.UpsertItemAsync(newItem.PartitionKeyValue, newItem).Wait();
 
             // Überprüft, dass das Element tatsächliche so gespeichert wurde:
-            var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
             Assert.Equal(availableItems.Count() + 1, results.Count);
             Assert.Contains(results, storedItem => storedItem.Equals(newItem));
             foreach (TestItem item in availableItems)
@@ -116,14 +117,14 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void UpsertItem_WhenPresent_IfOtherPropertyChanges_ThenUpdateIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var availableItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
-            TestUpdateItem(cosmosDataAccess,
+            TestUpdateItem(cosmosDirectAccess,
                            availableItems,
                            availableItems.First(),
                            item => item.Name = "Liane");
@@ -132,20 +133,20 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void UpsertItem_WhenPresent_IfPartitionKeyChanges_ThenUpdateIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var availableItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
-            TestUpdateItem(cosmosDataAccess,
+            TestUpdateItem(cosmosDirectAccess,
                            availableItems,
                            availableItems.Last(),
                            item => item.Family = "Oliveira");
         }
 
-        void TestUpdateItem(ContainerDataAutoReset cosmosDataAccess,
+        void TestUpdateItem(ContainerDataAutoReset cosmosDirectAccess,
                             IEnumerable<TestItem> availableItems,
                             TestItem itemToUpdate,
                             Action<TestItem> mutate)
@@ -155,25 +156,39 @@ namespace Reusable.DataAccess.IntegrationTests
             Fixture.Service.UpsertItemAsync(originalPartitionKey, itemToUpdate).Wait();
 
             // Überprüft, dass das Element tatsächliche so gespeichert wurde:
-            var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
-            foreach (TestItem item in availableItems)
-            {
-                Assert.Contains(results, storedItem => storedItem.Equals(item));
-            }
-            Assert.Equal(availableItems.Count(), results.Count());
+            var results = cosmosDirectAccess.CollectResultsFromQuery(
+                source => source.Select(item => item).OrderBy(item => item.Id));
+
+            Assert.Equal(
+                (from item in availableItems orderby item.Id select item),
+                results);
+        }
+
+        [Fact]
+        public void UpsertBatch_WhenNotInTheSamePartition_ThenThrow()
+        {
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+
+            var exception = Fixture.Service.UpsertBatchAsync(new List<TestItem> {
+                new TestItem { Name = "Paloma", Family = "Farah" },
+                new TestItem { Name = "Andressa", Family = "Rabah" },
+            }).Exception?.InnerException;
+
+            Assert.NotNull(exception);
+            Assert.IsType<ArgumentException>(exception);
         }
 
         [Fact]
         public void UpsertBatch_WhenPresent_ThenUpdateIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Vieira Aburaya";
             var itemsBeforeUpdate = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Felipe", Family = family },
                 new TestItem { Name = "Renata", Family = family },
                 new TestItem { Name = "Caroline", Family = family },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var itemsToUpdate = (
                 from item in itemsBeforeUpdate
@@ -182,19 +197,19 @@ namespace Reusable.DataAccess.IntegrationTests
 
             Fixture.Service.UpsertBatchAsync(itemsToUpdate).Wait();
 
-            VerifyUpsertedBatch(cosmosDataAccess, itemsToUpdate);
+            VerifyUpsertedBatch(cosmosDirectAccess, itemsToUpdate);
         }
 
         [Fact]
         public void UpsertBatch_WhenNotPresent_ThenAddIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Vieira Aburaya";
             var itemsBeforeUpdate = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Felipe", Family = family },
                 new TestItem { Name = "Renata", Family = family },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var itemsToUpdate = (
                 from item in itemsBeforeUpdate
@@ -206,13 +221,13 @@ namespace Reusable.DataAccess.IntegrationTests
 
             Fixture.Service.UpsertBatchAsync(itemsToUpdate).Wait();
 
-            VerifyUpsertedBatch(cosmosDataAccess, itemsToUpdate);
+            VerifyUpsertedBatch(cosmosDirectAccess, itemsToUpdate);
         }
 
         [Fact]
         public void UpsertBatch_WhenTooMany_ThenExecuteInMultipleBatches()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Familie";
             const int countItems = 250;
@@ -225,37 +240,37 @@ namespace Reusable.DataAccess.IntegrationTests
 
             Fixture.Service.UpsertBatchAsync(itemsToAdd).Wait();
 
-            VerifyUpsertedBatch(cosmosDataAccess, itemsToAdd);
+            VerifyUpsertedBatch(cosmosDirectAccess, itemsToAdd);
         }
 
-        private void VerifyUpsertedBatch(ContainerDataAutoReset cosmosDataAccess,
+        private void VerifyUpsertedBatch(ContainerDataAutoReset cosmosDirectAccess,
                                          IList<TestItem> itemsToUpsert)
         {
-            // Überprüft, dass die Elemente tatsächliche so gespeichert wurde:
-            var results = cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
-            foreach (TestItem item in itemsToUpsert)
-            {
-                Assert.Contains(results, storedItem => storedItem.Equals(item));
-            }
-            Assert.Equal(itemsToUpsert.Count, results.Count());
+            // Überprüft, dass die Elemente tatsächliche so gespeichert wurden:
+            var results = cosmosDirectAccess.CollectResultsFromQuery(
+                source => source.Select(item => item).OrderBy(item => item.Id));
+
+            Assert.Equal(
+                (from item in itemsToUpsert orderby item.Id select item),
+                results);
         }
 
         [Fact]
         public void DeleteItem_WhenDistinct_IfAllDeleted_ThenNothingRemains()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             Task.WaitAll((from item in itemsBeforeDeletion
                           select Fixture.Service.DeleteItemAsync(item.PartitionKeyValue, item.Id))
                           .ToArray());
 
             var itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             foreach (TestItem item in itemsBeforeDeletion)
             {
@@ -268,19 +283,19 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void DeleteItem_WhenSimilar_IfOneDeleted_ThenAnotherRemains()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             // Löscht das erste Element:
             TestItem item1 = itemsBeforeDeletion.First();
             Fixture.Service.DeleteItemAsync(item1.PartitionKeyValue, item1.Id).Wait();
 
             var itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             Assert.DoesNotContain(itemsAfterDeletion,
                 remainingItem => item1.Equals(remainingItem));
@@ -292,7 +307,7 @@ namespace Reusable.DataAccess.IntegrationTests
             Fixture.Service.DeleteItemAsync(item2.PartitionKeyValue, item2.Id).Wait();
 
             itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             Assert.DoesNotContain(itemsAfterDeletion,
                 remainingItem => item2.Equals(remainingItem));
@@ -303,19 +318,19 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void DeleteBatch_WhenAllDeleted_ThenNothingRemains()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Vieira Aburaya";
             var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Felipe", Family = family },
                 new TestItem { Name = "Renata", Family = family },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             Fixture.Service.DeleteBatchAsync(family,
                 (from item in itemsBeforeDeletion select item.Id).ToList()).Wait();
 
             var itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             foreach (TestItem item in itemsBeforeDeletion)
             {
@@ -328,14 +343,14 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void DeleteBatch_WhenSomeDeleted_ThenOthersRemain()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Vieira Aburaya";
             var itemsBeforeDeletion = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Felipe", Family = family },
                 new TestItem { Name = "Renata", Family = family },
                 new TestItem { Name = "Caroline", Family = family },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var itemsToDelete = itemsBeforeDeletion.Take(2);
 
@@ -343,7 +358,7 @@ namespace Reusable.DataAccess.IntegrationTests
                 (from item in itemsToDelete select item.Id).ToList()).Wait();
 
             var itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             foreach (TestItem item in itemsToDelete)
             {
@@ -356,7 +371,7 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void DeleteBatch_WhenTooMany_ThenExecuteInMultipleBatches()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             const string family = "Familie";
             const int countItems = 250;
@@ -366,13 +381,13 @@ namespace Reusable.DataAccess.IntegrationTests
                 itemsToAdd.Add(new TestItem { Name = $"Name{idx}", Family = family });
             }
 
-            var itemsBeforeDeletion = AddAndRetrieveItems(itemsToAdd, cosmosDataAccess);
+            var itemsBeforeDeletion = AddAndRetrieveItems(itemsToAdd, cosmosDirectAccess);
 
             Fixture.Service.DeleteBatchAsync(family,
                 (from item in itemsBeforeDeletion select item.Id).ToList()).Wait();
 
             var itemsAfterDeletion =
-                cosmosDataAccess.CollectResultsFromQuery(source => source.Select(item => item));
+                cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
 
             foreach (TestItem item in itemsBeforeDeletion)
             {
@@ -385,14 +400,14 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void GetItemCount_BeforeAndAfterAddingNew()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             Assert.Equal(0, Fixture.Service.GetItemCountAsync().Result);
 
             var addedItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             Assert.Equal(addedItems.Count(), Fixture.Service.GetItemCountAsync().Result);
         }
@@ -400,14 +415,14 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void GetItem_WhenNotPresent_ReturnNull()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             Assert.Null(Fixture.Service.GetItemAsync("nicht", "vorhanden").Result);
 
             var availableItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             Assert.Null(Fixture.Service.GetItemAsync("nicht", "vorhanden").Result);
         }
@@ -415,12 +430,12 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void GetItem_WhenPresent_ReturnIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var addedItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var getItemRequests = (from item in addedItems
                                    select new {
@@ -440,12 +455,12 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void Query_WhenNotPresent_ReturnNothing()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var addedItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var results = Fixture.Service.QueryAsync(source =>
                 source.Where(item => item.Name == "Liane")
@@ -457,12 +472,12 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void Query_WhenPresent_IfOne_ReturnIt()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var addedItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var itemToQuery = addedItems.First();
 
@@ -478,12 +493,12 @@ namespace Reusable.DataAccess.IntegrationTests
         [Fact]
         public void Query_WhenPresent_IfMany_ReturnThem()
         {
-            using var cosmosDataAccess = Fixture.GetAccessToCosmosContainerData();
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
             var addedItems = AddAndRetrieveItems(new List<TestItem> {
                 new TestItem { Name = "Paloma", Family = "Farah" },
                 new TestItem { Name = "Andressa", Family = "Rabah" },
-            }, cosmosDataAccess);
+            }, cosmosDirectAccess);
 
             var retrievedItems = Fixture.Service.QueryAsync(
                 source => source.Select(item => item).OrderBy(item => item.Family)).Result;

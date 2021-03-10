@@ -74,6 +74,9 @@ namespace Reusable.DataAccess.IntegrationTests
             return addedItems;
         }
 
+        /// <summary>
+        /// Löscht alle Elemente von dem Container.
+        /// </summary>
         private void EraseAllItemsInContainer()
         {
             var allItems = CollectResultsFromQuery(source => source.Select(item => item));

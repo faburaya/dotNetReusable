@@ -8,7 +8,8 @@ namespace Reusable.DataAccess.IntegrationTests
 {
     public class CosmosDatabaseFixture : IDisposable
     {
-        private string ConnectionString => "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+        private string ConnectionString =>
+            "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
         private string DatabaseName => "Reusable.DataAccess.IntegrationTests";
 
@@ -16,31 +17,30 @@ namespace Reusable.DataAccess.IntegrationTests
 
         public CosmosDbService<TestItem> Service { get; }
 
+        public CosmosDatabaseFixture()
+        {
+            this.Client = new CosmosClient(ConnectionString);
+
+            this.Service = CosmosDbService<TestItem>
+                .InitializeCosmosClientInstanceAsync(DatabaseName, ConnectionString)
+                .GetAwaiter()
+                .GetResult();
+
+            Assert.NotNull(Service);
+        }
+
         /// <summary>
         /// Gewährt Zugang auf die Daten im Cosmos Container.
         /// </summary>
         /// <remarks>
         /// Es geht davon aus, dass das Container und die Datenbank vorhanden sind.
         /// </remarks>
-        public ContainerDataAutoReset GetAccessToCosmosContainerData()
+        public ContainerDataAutoReset GetDirectAccessToCosmosContainer()
         {
             Container container = Client.GetContainer(DatabaseName,
                 DataModels.CosmosDbPartitionedItem<TestItem>.ContainerName);
             Assert.NotNull(container);
             return new ContainerDataAutoReset(container);
-        }
-
-        public CosmosDatabaseFixture()
-        {
-            this.Client = new CosmosClient(ConnectionString);
-
-            CosmosDbService<TestItem> cosmosDbService =
-                CosmosDbService<TestItem>.InitializeCosmosClientInstanceAsync(DatabaseName, ConnectionString)
-                    .GetAwaiter()
-                    .GetResult();
-
-            Assert.NotNull(cosmosDbService);
-            this.Service = cosmosDbService;
         }
 
         public void Dispose()
