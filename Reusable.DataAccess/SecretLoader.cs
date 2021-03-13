@@ -12,7 +12,7 @@ namespace Reusable.DataAccess
         /// <summary>
         /// Lädt die Datenquelle mit den Geheimnissen.
         /// </summary>
-        public SecretLoader(XmlMetadata metadata)
+        public SecretLoader(Common.XmlMetadata metadata)
         {
             var dom = new XmlDocument();
             dom.Load(metadata.FilePath);

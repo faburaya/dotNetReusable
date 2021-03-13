@@ -17,7 +17,7 @@ namespace Reusable.DataAccess.UnitTests
         public void GetDatabaseConnString_WhenXmlFileUnavailable_ThenThrow()
         {
             Assert.Throws<System.IO.FileNotFoundException>(() => new SecretLoader(
-                new XmlMetadata(DeploymentXmlNamespace, "nicht vorhandene Datei", SchemaDeploymentFilePath)));
+                new Common.XmlMetadata(DeploymentXmlNamespace, "nicht vorhandene Datei", SchemaDeploymentFilePath)));
         }
 
         private static string CreateValidXml(string[] innerXmlElements)
@@ -37,7 +37,7 @@ namespace Reusable.DataAccess.UnitTests
             File.WriteAllText(TestFilePath, xmlContent);
 
             Assert.Throws(exceptionType, () => new SecretLoader(
-                new XmlMetadata("http://nichts.de", TestFilePath, SchemaDeploymentFilePath)));
+                new Common.XmlMetadata("http://nichts.de", TestFilePath, SchemaDeploymentFilePath)));
 
             File.Delete(TestFilePath);
         }
@@ -48,7 +48,7 @@ namespace Reusable.DataAccess.UnitTests
             File.WriteAllText(TestFilePath, CreateValidXml(new string[] { "" }));
 
             new SecretLoader(
-                new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+                new Common.XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
 
             File.Delete(TestFilePath);
         }
@@ -66,7 +66,7 @@ namespace Reusable.DataAccess.UnitTests
             }));
 
             var secretLoader = new SecretLoader(
-                new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+                new Common.XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
 
             Assert.Null(secretLoader.GetDatabaseConnString("zwei"));
 
@@ -83,7 +83,7 @@ namespace Reusable.DataAccess.UnitTests
             }));
 
             var secretLoader = new SecretLoader(
-                new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+                new Common.XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
 
             Assert.Equal(expectedConnectionString, secretLoader.GetDatabaseConnString("eins"));
 
@@ -106,7 +106,7 @@ namespace Reusable.DataAccess.UnitTests
             }));
 
             var secretLoader = new SecretLoader(
-                new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+                new Common.XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
 
             Assert.Equal(expectedConnectionString[0], secretLoader.GetDatabaseConnString("eins"));
             Assert.Equal(expectedConnectionString[1], secretLoader.GetDatabaseConnString("zwei"));
