@@ -11,12 +11,14 @@ namespace Reusable.DataAccess
     /// <summary>
     /// Implementierung für einen Diest, der Zugang auf Azure Cosmos Datenbank gewährt.
     /// </summary>
-    public class CosmosDbService<ItemType> : ICosmosDbService<ItemType>
+    public class CosmosDbService<ItemType> : ICosmosDbService<ItemType> , IDisposable
         where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
         private static readonly int maxItemsPerBatch = 100;
 
         private Common.UidGenerator<ItemType> _idGenerator;
+
+        private readonly CosmosClient _client;
 
         private readonly Container _container;
 
@@ -58,7 +60,34 @@ namespace Reusable.DataAccess
                                 Common.UidGenerator<ItemType> idGenerator)
         {
             _idGenerator = idGenerator;
+            _client = dbClient;
             _container = dbClient.GetContainer(databaseName, DataModels.CosmosDbPartitionedItem<ItemType>.ContainerName);
+        }
+
+        private bool _disposed = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _client.Dispose();
+            }
+
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~CosmosDbService()
+        {
+            Dispose(false);
         }
 
         public async Task<IEnumerable<ItemType>> QueryAsync(

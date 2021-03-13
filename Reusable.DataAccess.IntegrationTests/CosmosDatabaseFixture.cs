@@ -65,6 +65,7 @@ namespace Reusable.DataAccess.IntegrationTests
             if (disposing)
             {
                 Client.Dispose();
+                Service.Dispose();
             }
 
             _disposed = true;
