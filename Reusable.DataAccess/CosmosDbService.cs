@@ -197,9 +197,9 @@ namespace Reusable.DataAccess
             await _container.UpsertItemAsync(item);
         }
 
-        public async Task UpsertBatchAsync(IList<ItemType> items)
+        public async Task UpsertBatchAsync(IEnumerable<ItemType> items)
         {
-            if (items.Count == 0)
+            if (items.Count() == 0)
             {
                 return;
             }
@@ -214,7 +214,7 @@ namespace Reusable.DataAccess
                 throw new ArgumentException($"Element.PartitionKeyValue = '{anItemOutOfPartition.PartitionKeyValue}' gehört nicht zur gleichen Partition der anderen Elemente (= '{partitionKey}')");
             }
 
-            for (int idx = 0; idx < items.Count; idx += maxItemsPerBatch)
+            for (int idx = 0; idx < items.Count(); idx += maxItemsPerBatch)
             {
                 TransactionalBatch batch = _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
 

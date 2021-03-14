@@ -82,7 +82,7 @@ namespace Reusable.DataAccess
         /// Eine Liste der zu ändernden Elemente.
         /// Alle Elemente müssen zu der gleichen Partition gehören.
         /// </param>
-        Task UpsertBatchAsync(IList<ItemType> items);
+        Task UpsertBatchAsync(IEnumerable<ItemType> items);
     }
 
 }// namespace Reusable.DataAccess
