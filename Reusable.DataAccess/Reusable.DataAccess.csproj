@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>com.faburaya.Reusable.DataAccess</PackageId>
-    <Version>2.1.2</Version>
+    <Version>3.0.3</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.DataAccess</Product>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquellen nützlich sind.</Description>

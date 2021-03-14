@@ -9,7 +9,7 @@ namespace Reusable.DataAccess
     /// Generische Schnittstelle, die Zugang auf die Azure Cosmos Datenbank gewährt.
     /// </summary>
     /// <typeparam name="ItemType">Der Typ in der Datenbank, mit dem man umgehen will.</typeparam>
-    public interface ICosmosDbService<ItemType>
+    public interface ICosmosDbService<ItemType> : IDisposable
         where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
         /// <summary>

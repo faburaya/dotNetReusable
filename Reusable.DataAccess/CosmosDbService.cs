@@ -11,7 +11,7 @@ namespace Reusable.DataAccess
     /// <summary>
     /// Implementierung für einen Diest, der Zugang auf Azure Cosmos Datenbank gewährt.
     /// </summary>
-    public class CosmosDbService<ItemType> : ICosmosDbService<ItemType> , IDisposable
+    public class CosmosDbService<ItemType> : ICosmosDbService<ItemType>
         where ItemType : DataModels.CosmosDbItem<ItemType>, IEquatable<ItemType>
     {
         private static readonly int maxItemsPerBatch = 100;
