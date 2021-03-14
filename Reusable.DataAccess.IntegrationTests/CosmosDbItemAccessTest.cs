@@ -16,7 +16,7 @@ namespace Reusable.DataAccess.IntegrationTests
         public CosmosDbItemAccessTest(CosmosDatabaseFixture fixture)
         {
             this.Fixture = fixture;
-            this.ItemAccess = new CosmosDbItemAccess<TestItem>(fixture.Service);
+            this.ItemAccess = new CosmosDbItemAccess<TestItem>(fixture.Service, 50);
         }
 
         private IEnumerable<TestItem> AddAndRetrieveItems(IList<TestItem> items,
@@ -57,15 +57,22 @@ namespace Reusable.DataAccess.IntegrationTests
             ItemAccess.Commit();
         }
 
-        [Fact]
-        public void InsertAndCommit_WhenHasItemsInsert_ThenAddThem()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(100)]
+        public void InsertAndCommit_WhenHasItemsToInsert_ThenAddThem(int numItems)
         {
             using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
-            var itemsToAdd = new List<TestItem> {
-                new TestItem { Name = "Paloma", Family = "Farah" },
-                new TestItem { Name = "Andressa", Family = "Rabah" },
-            };
+            var itemsToAdd = new List<TestItem>(capacity: numItems);
+            for (int count = 0; count < numItems; ++count)
+            {
+                itemsToAdd.Add(new TestItem {
+                    Name = $"Name{count}",
+                    Family = $"Familie{count % 5}"
+                });
+            }
 
             foreach (TestItem item in itemsToAdd)
             {

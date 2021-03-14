@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Reusable.DataAccess
@@ -10,16 +11,17 @@ namespace Reusable.DataAccess
     public class CosmosDbItemAccess<DataType> : ITableAccess<DataType>
         where DataType : DataModels.CosmosDbItem<DataType>, IEquatable<DataType>
     {
-        private static readonly int maxAsyncTasks = 20;
+        private readonly int _maxAsyncTasks;
 
         private ICosmosDbService<DataType> DatabaseService { get; }
 
-        private List<Task> Insertions { get; }
+        private List<Task> Insertions { get; set; }
 
-        public CosmosDbItemAccess(ICosmosDbService<DataType> dbService)
+        public CosmosDbItemAccess(ICosmosDbService<DataType> dbService, int maxConcurrentOperations = 20)
         {
             this.DatabaseService = dbService;
-            this.Insertions = new List<Task>();
+            this.Insertions = new List<Task>(capacity: maxConcurrentOperations);
+            _maxAsyncTasks = maxConcurrentOperations;
         }
 
         public bool IsEmpty()
@@ -29,14 +31,14 @@ namespace Reusable.DataAccess
 
         public void Insert(DataType obj)
         {
-            var asyncAdd = DatabaseService.AddItemAsync(obj);
+            Insertions.Add(DatabaseService.AddItemAsync(obj));
 
-            if (Insertions.Count == maxAsyncTasks)
+            if (Insertions.Count >= _maxAsyncTasks)
             {
-                Commit();
+                var pendingRequests = Insertions.SkipWhile(task => task.IsCompleted);
+                pendingRequests.FirstOrDefault()?.Wait();
+                Insertions = pendingRequests.ToList();
             }
-
-            Insertions.Add(asyncAdd);
         }
 
         public void Commit()
@@ -44,5 +46,7 @@ namespace Reusable.DataAccess
             Task.WaitAll(Insertions.ToArray());
             Insertions.Clear();
         }
-    }
-}
+
+    }// end of class CosmosDbItemAccess
+
+}// using namespace Reusable.DataAccess
