@@ -91,6 +91,24 @@ namespace Reusable.DataAccess.IntegrationTests
             return itemsAddedToContainer;
         }
 
+        [Theory]
+        [InlineData(null, "Oliveira")]
+        [InlineData("CAFEBABE", null)]
+        public void UpsertItem_WhenIdOrKeyNull_ThenThrow(string id, string partitionKey)
+        {
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+
+            var newItem = new TestItem { Id = id, Name = "Liane", Family = partitionKey };
+            var exception = Assert.Throws<AggregateException>(
+                () => Fixture.Service.UpsertItemAsync(newItem.PartitionKeyValue, newItem).Wait());
+            
+            Assert.IsType<ArgumentException>(exception.InnerException);
+
+            // Überprüft, dass das Element tatsächliche so gespeichert wurde:
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            Assert.Empty(results);
+        }
+
         [Fact]
         public void UpsertItem_WhenNotPresent_ThenAddIt()
         {
