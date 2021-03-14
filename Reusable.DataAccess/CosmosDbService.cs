@@ -16,7 +16,7 @@ namespace Reusable.DataAccess
     {
         private static readonly int maxItemsPerBatch = 100;
 
-        private Common.UidGenerator<ItemType> _idGenerator;
+        private readonly Common.UidGenerator<ItemType> _idGenerator;
 
         private readonly CosmosClient _client;
 
@@ -204,19 +204,24 @@ namespace Reusable.DataAccess
                 return;
             }
 
-            string partitionKey = items.First().PartitionKeyValue;
-            ItemType anItemOutOfPartition = (from item in items
-                                             where item.PartitionKeyValue != partitionKey
-                                             select item).FirstOrDefault();
+            string partitionKey =
+                items.FirstOrDefault(item => item.PartitionKeyValue != null)?.PartitionKeyValue;
 
-            if (anItemOutOfPartition != null)
+            ItemType notCompliantItem = (from item in items
+                                         where item.PartitionKeyValue != partitionKey
+                                            || item.PartitionKeyValue == null
+                                            || item.Id == null
+                                         select item).FirstOrDefault();
+
+            if (notCompliantItem != null)
             {
-                throw new ArgumentException($"Element.PartitionKeyValue = '{anItemOutOfPartition.PartitionKeyValue}' gehört nicht zur gleichen Partition der anderen Elemente (= '{partitionKey}')");
+                throw new ArgumentException($"Element{{ Id = {notCompliantItem.Id}, PartitionKey = {notCompliantItem.PartitionKeyValue} }} ist ungültig! Weder das ID noch der Partitionsschlüssel dürfen leer sein. Außerdem müssen die Partitionsschlüsseln aller Elemente im Batch gleich sein.");
             }
 
             for (int idx = 0; idx < items.Count(); idx += maxItemsPerBatch)
             {
-                TransactionalBatch batch = _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
+                TransactionalBatch batch =
+                    _container.CreateTransactionalBatch(new PartitionKey(partitionKey));
 
                 var slice = items.Skip(idx).Take(maxItemsPerBatch);
                 foreach (ItemType item in slice)

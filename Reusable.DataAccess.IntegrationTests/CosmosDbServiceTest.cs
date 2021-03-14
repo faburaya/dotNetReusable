@@ -68,7 +68,8 @@ namespace Reusable.DataAccess.IntegrationTests
             foreach (TestItem expectedItem in expectedItems)
             {
                 Assert.Contains(storedItems,
-                    actualItem => {
+                    actualItem =>
+                    {
                         return actualItem.Name == expectedItem.Name
                             && actualItem.Family == expectedItem.Family;
                     });
@@ -101,7 +102,7 @@ namespace Reusable.DataAccess.IntegrationTests
             var newItem = new TestItem { Id = id, Name = "Liane", Family = partitionKey };
             var exception = Assert.Throws<AggregateException>(
                 () => Fixture.Service.UpsertItemAsync(newItem.PartitionKeyValue, newItem).Wait());
-            
+
             Assert.IsType<ArgumentException>(exception.InnerException);
 
             // Überprüft, dass das Element tatsächliche so gespeichert wurde:
@@ -187,13 +188,48 @@ namespace Reusable.DataAccess.IntegrationTests
         {
             using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
 
-            var exception = Fixture.Service.UpsertBatchAsync(new List<TestItem> {
-                new TestItem { Name = "Paloma", Family = "Farah" },
-                new TestItem { Name = "Andressa", Family = "Rabah" },
-            }).Exception?.InnerException;
+            Assert.NotNull(
+                Fixture.Service.UpsertBatchAsync(new List<TestItem> {
+                    new TestItem { Id = "CAFEBABE", Name = "Paloma", Family = "Farah" },
+                    new TestItem { Id = "DEEDFEED", Name = "Andressa", Family = "Rabah" },
+                }).Exception?.InnerException
+            );
 
-            Assert.NotNull(exception);
-            Assert.IsType<ArgumentException>(exception);
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            Assert.Empty(results);
+        }
+
+        [Fact]
+        public void UpsertBatch_WhenOneIdIsNull_ThenThrow()
+        {
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+
+            string family = "Vieira Aburaya";
+            Assert.NotNull(
+                Fixture.Service.UpsertBatchAsync(new List<TestItem> {
+                    new TestItem { Id = "DEEDFEED", Name = "Felipe", Family = family },
+                    new TestItem { Id = null, Name = "Renata", Family = family },
+                }).Exception?.InnerException
+            );
+
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            Assert.Empty(results);
+        }
+
+        [Fact]
+        public void UpsertBatch_WhenPartitionKeyIsNull_ThenThrow()
+        {
+            using var cosmosDirectAccess = Fixture.GetDirectAccessToCosmosContainer();
+
+            Assert.NotNull(
+                Fixture.Service.UpsertBatchAsync(new List<TestItem> {
+                    new TestItem { Id = "DEEDFEED", Name = "Paloma", Family = null },
+                    new TestItem { Id = "CAFEBABE", Name = "Andressa", Family = null },
+                }).Exception?.InnerException
+            );
+
+            var results = cosmosDirectAccess.CollectResultsFromQuery(source => source.Select(item => item));
+            Assert.Empty(results);
         }
 
         [Fact]
@@ -456,13 +492,15 @@ namespace Reusable.DataAccess.IntegrationTests
             }, cosmosDirectAccess);
 
             var getItemRequests = (from item in addedItems
-                                   select new {
+                                   select new
+                                   {
                                        expectedItem = item,
                                        promise = Fixture.Service.GetItemAsync(item.PartitionKeyValue, item.Id)
                                    }).ToArray();
 
             Assert.All(from request in getItemRequests
-                       select new {
+                       select new
+                       {
                            expectedItem = request.expectedItem,
                            actualItem = request.promise.Result
                        },
