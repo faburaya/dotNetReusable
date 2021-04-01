@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data, access, azure, cosmos, xml</PackageTags>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;AnyCPU</Platforms>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
   </PropertyGroup>
 

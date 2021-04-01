@@ -11,12 +11,16 @@
     <PackageTags>data, model, azure, cosmos</PackageTags>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;AnyCPU</Platforms>
     <PackageId>com.faburaya.Reusable.DataModels</PackageId>
     <Company />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
