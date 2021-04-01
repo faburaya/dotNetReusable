@@ -12,7 +12,7 @@ namespace Reusable.Utils.UnitTests
 
         private string SchemaDeploymentFilePath => "secrets.xsd";
 
-        private string DeploymentXmlNamespace => "http://dataaccess.reusable.faburaya.com/secrets";
+        private string DeploymentXmlNamespace => "http://utils.reusable.faburaya.com/secrets";
 
         [Fact]
         public void Instantiate_WhenXmlFileUnavailable_ThenThrow()
@@ -38,7 +38,7 @@ namespace Reusable.Utils.UnitTests
                     allCredentials.AppendLine(entry);
             }
 
-            return string.Format(@"<?xml version=""1.0"" encoding=""utf-8"" ?><secrets xmlns=""http://dataaccess.reusable.faburaya.com/secrets""><connectionStrings>{0}</connectionStrings><credentials>{1}</credentials></secrets>",
+            return string.Format(@"<?xml version=""1.0"" encoding=""utf-8"" ?><secrets xmlns=""http://utils.reusable.faburaya.com/secrets""><connectionStrings>{0}</connectionStrings><credentials>{1}</credentials></secrets>",
                 allConnStrings.ToString(),
                 allCredentials.ToString());
         }
