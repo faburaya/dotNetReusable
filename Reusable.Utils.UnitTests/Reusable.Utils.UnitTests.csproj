@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.DataAccess\Reusable.DataAccess.csproj" />
+    <ProjectReference Include="..\Reusable.Utils\Reusable.Utils.csproj" />
   </ItemGroup>
 
 </Project>

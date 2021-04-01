@@ -1,5 +1,5 @@
 ﻿
-namespace Reusable.DataAccess.Common
+namespace Reusable.Utils
 {
     /// <summary>
     /// Metadaten über die zu ladende XML-Datei.
@@ -29,4 +29,4 @@ namespace Reusable.DataAccess.Common
         }
     }
 
-}
+}// end of namespace Reusable.Utils

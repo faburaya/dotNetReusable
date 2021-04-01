@@ -16,7 +16,7 @@ namespace Reusable.DataAccess
     {
         private static readonly int maxItemsPerBatch = 100;
 
-        private readonly Common.UidGenerator<ItemType> _idGenerator;
+        private readonly Utils.UidGenerator<ItemType> _idGenerator;
 
         private readonly CosmosClient _client;
 
@@ -34,7 +34,7 @@ namespace Reusable.DataAccess
         public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(
             string databaseName,
             string connectionString,
-            Common.UidGenerator<ItemType> idGenerator)
+            Utils.UidGenerator<ItemType> idGenerator)
         {
             var client = new CosmosClient(connectionString);
             var service = new CosmosDbService<ItemType>(client, databaseName, idGenerator);
@@ -52,12 +52,12 @@ namespace Reusable.DataAccess
         {
             return await InitializeCosmosClientInstanceAsync(databaseName,
                                                              connectionString,
-                                                             new Common.UidGenerator<ItemType>());
+                                                             new Utils.UidGenerator<ItemType>());
         }
 
         private CosmosDbService(CosmosClient dbClient,
                                 string databaseName,
-                                Common.UidGenerator<ItemType> idGenerator)
+                                Utils.UidGenerator<ItemType> idGenerator)
         {
             _idGenerator = idGenerator;
             _client = dbClient;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.DataAccess.Common
+namespace Reusable.Utils
 {
     /// <summary>
     /// Grundlegende Implementierung für die Erstellung von einzigartigen Identificakationsnummern.

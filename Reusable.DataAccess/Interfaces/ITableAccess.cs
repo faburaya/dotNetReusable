@@ -9,7 +9,7 @@ namespace Reusable.DataAccess
     /// aber für Azure Cosmos ist es das Container für den gegebenen Datentyp.
     /// </remarks>
     /// <typeparam name="DataType">Der zu ausfüllende Datentyp.</typeparam>
-    public interface ITableAccess<DataType>
+    public interface ITableAccess<in DataType>
     {
         /// <summary>
         /// Fügt eine neue Reihe (Element / Unterlage).
