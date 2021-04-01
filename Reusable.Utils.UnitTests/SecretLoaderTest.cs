@@ -154,6 +154,93 @@ namespace Reusable.Utils.UnitTests
             }
         }
 
+        private static string MakeXmlElementForCredential(string credentialName,
+                                                          string userId,
+                                                          string password)
+        {
+            return $@"<credential name=""{credentialName}"" userid=""{userId}"" password=""{password}"" />";
+        }
+
+        [Fact]
+        public void GetCredential_WhenNameUnavailable_ThenNull()
+        {
+            File.WriteAllText(TestFilePath, CreateValidXml(null, new string[] {
+                MakeXmlElementForCredential("eins", "paloma", "Kennwort1")
+            }));
+
+            try
+            {
+                var secretLoader = new SecretLoader(
+                    new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+
+                Assert.Null(secretLoader.GetCredential("zwei"));
+            }
+            finally
+            {
+                File.Delete(TestFilePath);
+            }
+        }
+
+        [Fact]
+        public void GetCredential_WhenOneAvailable_ThenGiveIt()
+        {
+            var expectedCredential = new PasswordBasedCredential
+            {
+                UserId = "paloma",
+                Password = "Kennwort1"
+            };
+
+            File.WriteAllText(TestFilePath, CreateValidXml(null, new string[] {
+                MakeXmlElementForCredential("eins", expectedCredential.UserId, expectedCredential.Password)
+            }));
+
+            try
+            {
+                var secretLoader = new SecretLoader(
+                    new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+
+                Assert.Equal(expectedCredential, secretLoader.GetCredential("eins"));
+            }
+            finally
+            {
+                File.Delete(TestFilePath);
+            }
+        }
+
+        [Fact]
+        public void GetCredential_WhenManyAvailable_ThenGiveThem()
+        {
+            var expectedCredential = new PasswordBasedCredential[]
+            {
+                new PasswordBasedCredential { UserId = "paloma", Password = "Kennwort1" },
+                new PasswordBasedCredential { UserId = "andressa", Password = "Kennwort2" },
+                new PasswordBasedCredential { UserId = "liane", Password = "Kennwort3" }
+            };
+
+            File.WriteAllText(TestFilePath, CreateValidXml(null, new string[] {
+                MakeXmlElementForCredential("eins",
+                    expectedCredential[0].UserId, expectedCredential[0].Password),
+                MakeXmlElementForCredential("zwei",
+                    expectedCredential[1].UserId, expectedCredential[1].Password),
+                MakeXmlElementForCredential("drei",
+                    expectedCredential[2].UserId, expectedCredential[2].Password),
+            }));
+
+            try
+            {
+                var secretLoader = new SecretLoader(
+                    new XmlMetadata(DeploymentXmlNamespace, TestFilePath, SchemaDeploymentFilePath));
+
+                Assert.Equal(expectedCredential[0], secretLoader.GetCredential("eins"));
+                Assert.Equal(expectedCredential[1], secretLoader.GetCredential("zwei"));
+                Assert.Equal(expectedCredential[2], secretLoader.GetCredential("drei"));
+            }
+            finally
+            {
+                File.Delete(TestFilePath);
+            }
+        }
+
     }// end of class SecretLoaderTest
 
 }// end of namespace Reusable.DataAccess.UnitTests
