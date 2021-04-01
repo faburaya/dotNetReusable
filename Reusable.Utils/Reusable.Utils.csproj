@@ -2,12 +2,26 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>com.faburaya.Reusable.Utils</PackageId>
+    <Version>3.1.1</Version>
+    <Authors>Felipe Vieira Aburaya</Authors>
+    <Product>Reusable.Utils</Product>
+    <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>common, utils, xml, credentials</PackageTags>
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die nützlich für allgemeine Zwecke sein können.</Description>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="secrets.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 

@@ -5,7 +5,7 @@ namespace Reusable.Utils
     /// <summary>
     /// Gewährt eine Strategie für Wiederholungen von gescheiterten Operationen.
     /// </summary>
-    public class RetryStrategy
+    public static class RetryStrategy
     {
         private static readonly Random randomGenerator = new Random(DateTime.Now.Millisecond);
 
