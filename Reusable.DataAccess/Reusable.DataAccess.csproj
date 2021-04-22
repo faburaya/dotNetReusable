@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>com.faburaya.Reusable.DataAccess</PackageId>
-    <Version>3.1.3</Version>
+    <Version>3.1.5</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.DataAccess</Product>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquellen nützlich sind.</Description>
@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="2.1.2" />
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.17.0" />
+    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="2.1.4" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.17.1" />
   </ItemGroup>
 
 </Project>
