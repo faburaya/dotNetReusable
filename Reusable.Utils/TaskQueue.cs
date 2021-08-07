@@ -12,14 +12,14 @@ namespace Reusable.Utils
     /// </summary>
     public class TaskQueue
     {
-        private readonly int _maxParallelTasks;
+        private readonly ushort _maxParallelTasks;
 
-        private readonly LinkedList<Task> _tasks;
+        private readonly Queue<Task> _tasks;
 
-        public TaskQueue(int maxParallelTasks)
+        public TaskQueue(ushort maxParallelTasks)
         {
             _maxParallelTasks = maxParallelTasks;
-            _tasks = new LinkedList<Task>();
+            _tasks = new Queue<Task>();
         }
 
         public void Add(Task task)
@@ -28,7 +28,7 @@ namespace Reusable.Utils
             {
                 while (_tasks.Count > 0)
                 {
-                    Task oldestTask = _tasks.First.Value;
+                    Task oldestTask = _tasks.Peek();
                     if (!oldestTask.IsCompleted)
                     {
                         if (_tasks.Count == _maxParallelTasks)
@@ -41,22 +41,29 @@ namespace Reusable.Utils
                         }
                     }
 
-                    _tasks.RemoveFirst();
+                    _tasks.Dequeue();
                 }
 
-                _tasks.AddLast(task);
+                _tasks.Enqueue(task);
             }
         }
 
         public void WaitAll()
         {
-            Task[] arrayOfTasks;
-            lock (this)
+            while (true)
             {
-                arrayOfTasks = _tasks.ToArray();
-            }
+                Task[] arrayOfTasks;
+                lock (this)
+                {
+                    if (_tasks.Count == 0)
+                        return;
 
-            Task.WaitAll(arrayOfTasks);
+                    arrayOfTasks = _tasks.ToArray();
+                    _tasks.Clear();
+                }
+
+                Task.WaitAll(arrayOfTasks);
+            }
         }
 
     }// end of class TaskQueue
