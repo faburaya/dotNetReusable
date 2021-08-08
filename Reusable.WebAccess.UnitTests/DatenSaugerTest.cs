@@ -182,8 +182,10 @@ namespace Reusable.WebAccess.UnitTests
                 Uri url = pair.Item1;
                 string content = pair.Item2;
                 mock.Setup(obj => obj.DownloadFrom(url))
-                    .Callback<Uri>(arg => Thread.Sleep(TimeSpan.FromMilliseconds(arg.GetHashCode() % 2 == 1 ? 1 : 3)))
-                    .ReturnsAsync(content);
+                    .ReturnsAsync(() => {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(url.GetHashCode() % 2 == 1 ? 1 : 3));
+                        return content;
+                    });
             }
             return mock;
         }
