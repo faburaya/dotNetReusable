@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using Moq;
@@ -135,18 +136,16 @@ namespace Reusable.WebAccess.UnitTests
 
         [Theory]
         [InlineData(2)]
-        [InlineData(10)]
         [InlineData(300)]
         public void CollectData_WhenMultipleLinks_ThenParseContentFromAll(int websiteCount)
         {
             var finalWebsites = CreateManyFinalWebsites(websiteCount);
             var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
-                                                  "Das ist nur ein Hop vor der letzten Webseite",
+                                                  "Das ist nur ein Hop vor der endgültigen Webseiten",
                                                   from website in finalWebsites select website.url);
 
             // Richtet das Holen von Hypertext aus den Webseiten ein:
-            var allWebsites = new List<(Uri, string)>();
-            allWebsites.Add((firstWebsite.url, firstWebsite.content));
+            var allWebsites = new List<(Uri, string)> { (firstWebsite.url, firstWebsite.content) };
             allWebsites.AddRange(from website in finalWebsites select (website.url, website.content));
             Mock<IHypertextFetcher> hypertextFetcherMock = CreateMockToFetchHypertext(allWebsites);
 
@@ -160,13 +159,59 @@ namespace Reusable.WebAccess.UnitTests
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
                     firstWebsite.url,
-                    new[] {
-                        CreateHopWith(hyperlinksParserMock, firstWebsite)
-                    },
+                    new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
                     contentParserMock.Object
                 ).Result;
 
             Assert.Equal(actualCollectedData, expectedCollectedData);
+
+            contentParserMock.VerifyAll();
+            hyperlinksParserMock.VerifyAll();
+            hypertextFetcherMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected()
+        {
+            var finalWebsites = CreateManyFinalWebsites(100);
+            var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
+                                                  "Das ist nur ein Hop vor der endgültigen Webseiten",
+                                                  from website in finalWebsites select website.url);
+
+            // Richtet das Holen von Hypertext aus den Webseiten ein:
+            var allWebsites = new List<(Uri, string)> { (firstWebsite.url, firstWebsite.content) };
+            allWebsites.AddRange(from website in finalWebsites select (website.url, website.content));
+            Mock<IHypertextFetcher> hypertextFetcherMock = CreateMockToFetchHypertext(allWebsites);
+
+            // Richtet die Zergliederung von dem Inhalt in der endgültigen Webseite ein:
+            Mock<IHypertextContentParser<int>> contentParserMock =
+                CreateMockToParseContent(finalWebsites, out List<int> expectedCollectedData);
+
+            // Startet den DatenSauger mit einem einzigen Hop:
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            var hyperlinksParserMock = new Mock<IHyperlinksParser>(MockBehavior.Strict);
+
+            Task<IEnumerable<int>> asynchronousCollection =
+                crawler.CollectDataAsync(
+                    firstWebsite.url,
+                    new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
+                    contentParserMock.Object
+                );
+
+            IEnumerable<int> synchronousCollection =
+                crawler.CollectData(
+                    firstWebsite.url,
+                    new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
+                    contentParserMock.Object
+                );
+
+            var synchronouslyCollectedData = new List<int>();
+            foreach (int parsedObject in synchronousCollection)
+            {
+                synchronouslyCollectedData.Add(parsedObject);
+            }
+
+            Assert.Equal(synchronouslyCollectedData, asynchronousCollection.Result);
 
             contentParserMock.VerifyAll();
             hyperlinksParserMock.VerifyAll();
@@ -183,7 +228,7 @@ namespace Reusable.WebAccess.UnitTests
                 string content = pair.Item2;
                 mock.Setup(obj => obj.DownloadFrom(url))
                     .ReturnsAsync(() => {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(url.GetHashCode() % 2 == 1 ? 1 : 3));
+                        Thread.Sleep(TimeSpan.FromMilliseconds(url.GetHashCode() % 2 == 1 ? 1 : 5));
                         return content;
                     });
             }
@@ -223,12 +268,13 @@ namespace Reusable.WebAccess.UnitTests
 
         private IList<FakeFinalWebsite> CreateManyFinalWebsites(int count)
         {
+            var random = new Random();
             var websites = new List<FakeFinalWebsite>(capacity: count);
             for (int idx = 0; idx < count; ++idx)
             {
                 websites.Add(new FakeFinalWebsite(url: new Uri($"http://daten-quelle-{idx}.de"),
                                                   content: $"Hier steht HTML mit echtem Inhalt #{idx}",
-                                                  parsedObjects: new int[] { idx, idx + 1 }));
+                                                  parsedObjects: new int[] { random.Next(), random.Next() }));
             }
             return websites;
         }

@@ -6,7 +6,7 @@ namespace Reusable.WebAccess
     /// Schnittstelle für die Zergliderung von Inhalt in Hypertext.
     /// </summary>
     /// <typeparam name="DataType">Der Typ, in dem die zergliederte Daten gespeichert werden sollen.</typeparam>
-    public interface IHypertextContentParser<DataType>
+    public interface IHypertextContentParser<out DataType>
     {
         public IEnumerable<DataType> ParseContent(string hypertext);
     }

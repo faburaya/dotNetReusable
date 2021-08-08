@@ -10,6 +10,7 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>web, crawler</PackageTags>
+    <Version>1.1.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
