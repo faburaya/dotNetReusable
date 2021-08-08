@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageId>com.faburaya.Reusable.WebAccess</PackageId>
+    <Authors>Felipe Vieira Aburaya</Authors>
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf dem Internet nützlich sind.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>web, crawler</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\3.1.3\contentFiles\any\netcoreapp3.1\secrets.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="3.1.5" />
+  </ItemGroup>
+
+</Project>
