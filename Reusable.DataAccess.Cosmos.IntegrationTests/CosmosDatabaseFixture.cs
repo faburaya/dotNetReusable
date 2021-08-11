@@ -1,10 +1,9 @@
 ﻿using System;
 
 using Microsoft.Azure.Cosmos;
-
 using Xunit;
 
-namespace Reusable.DataAccess.IntegrationTests
+namespace Reusable.DataAccess.Cosmos.IntegrationTests
 {
     public class CosmosDatabaseFixture : IDisposable
     {
@@ -73,4 +72,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class CosmosDatabaseFixture
 
-}// end of namespace Reusable.DataAccess.IntegrationTests
+}// end of namespace Reusable.DataAccess.Cosmos.IntegrationTests

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Newtonsoft.Json;
 
-namespace Reusable.DataAccess.IntegrationTests
+namespace Reusable.DataAccess.Cosmos.IntegrationTests
 {
     /// <summary>
     /// Dieser Type sollte als Element der Datenbank gut funktionieren.

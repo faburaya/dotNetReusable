@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Reusable.DataAccess
+namespace Reusable.DataAccess.Cosmos
 {
     /// <summary>
     /// Gewährt Zugang auf ein Element in Azure Cosmos Datenbank.
     /// </summary>
-    public class CosmosDbItemAccess<DataType> : ITableAccess<DataType>
+    public class CosmosDbItemAccess<DataType> : Common.ITableAccess<DataType>
         where DataType : DataModels.CosmosDbItem<DataType>, IEquatable<DataType>
     {
         private readonly int _maxAsyncTasks;
@@ -49,4 +49,4 @@ namespace Reusable.DataAccess
 
     }// end of class CosmosDbItemAccess
 
-}// using namespace Reusable.DataAccess
+}// using namespace Reusable.DataAccess.Cosmos

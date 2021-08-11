@@ -1,5 +1,5 @@
 ﻿
-namespace Reusable.DataAccess
+namespace Reusable.DataAccess.Common
 {
     /// <summary>
     /// Schnittstelle für Ausfüllung der Datenbank mit ursprünglichen Daten.

@@ -1,6 +1,6 @@
 ﻿using Xunit;
 
-namespace Reusable.DataAccess.IntegrationTests.Fixtures
+namespace Reusable.DataAccess.Cosmos.IntegrationTests
 {
     [CollectionDefinition("IntegrationTests")]
     public class MyFixturesCollection

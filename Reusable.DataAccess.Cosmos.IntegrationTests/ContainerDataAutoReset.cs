@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
-namespace Reusable.DataAccess.IntegrationTests
+namespace Reusable.DataAccess.Cosmos.IntegrationTests
 {
     /// <summary>
     /// Gewährt Zugang auf die Daten im Cosmos Container
@@ -127,4 +127,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class ContainerDataAutoReset
 
-}// using namespace Reusable.DataAccess.IntegrationTests
+}// using namespace Reusable.DataAccess.Cosmos.IntegrationTests

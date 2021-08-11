@@ -4,7 +4,7 @@ using System.Linq;
 
 using Xunit;
 
-namespace Reusable.DataAccess.IntegrationTests
+namespace Reusable.DataAccess.Cosmos.IntegrationTests
 {
     [Collection("IntegrationTests")]
     public class CosmosDbItemAccessTest
@@ -91,4 +91,4 @@ namespace Reusable.DataAccess.IntegrationTests
 
     }// end of class CosmosDbItemAccessTest*
 
-}// end of namespace Reusable.DataAccess.IntegrationTests
+}// end of namespace Reusable.DataAccess.Cosmos.IntegrationTests

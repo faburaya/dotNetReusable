@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Reusable.DataAccess
+namespace Reusable.DataAccess.Common
 {
     /// <summary>
     /// Implementiert eine Ausnahme für gescheiterte Vorgänge in einem Dienst.

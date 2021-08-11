@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>Felipe Vieira Aburaya</Authors>
+    <PackageId>com.faburaya.Reusable.DataAccess.Common</PackageId>
+    <Company />
+    <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf verschiedene Datenquellen nützlich sind.</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>data access</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

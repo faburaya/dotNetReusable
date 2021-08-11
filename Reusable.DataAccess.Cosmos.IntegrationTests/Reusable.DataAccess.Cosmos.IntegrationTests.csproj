@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Reusable.DataAccess\Reusable.DataAccess.csproj" />
+    <ProjectReference Include="..\Reusable.DataAccess.Cosmos\Reusable.DataAccess.Cosmos.csproj" />
   </ItemGroup>
 
 </Project>

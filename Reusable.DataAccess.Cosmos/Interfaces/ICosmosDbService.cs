@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Reusable.DataAccess
+namespace Reusable.DataAccess.Cosmos
 {
     /// <summary>
     /// Generische Schnittstelle, die Zugang auf die Azure Cosmos Datenbank gewährt.
@@ -85,4 +85,4 @@ namespace Reusable.DataAccess
         Task UpsertBatchAsync(IEnumerable<ItemType> items);
     }
 
-}// namespace Reusable.DataAccess
+}// namespace Reusable.DataAccess.Cosmos

@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
-namespace Reusable.DataAccess
+using Reusable.DataAccess.Common;
+
+namespace Reusable.DataAccess.Cosmos
 {
     /// <summary>
     /// Implementierung für einen Diest, der Zugang auf Azure Cosmos Datenbank gewährt.
@@ -236,4 +238,4 @@ namespace Reusable.DataAccess
 
     }// end of class CosmosDbService
 
-}// end of namespace Reusable.DataAccess
+}// end of namespace Reusable.DataAccess.Cosmos
