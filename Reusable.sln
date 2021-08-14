@@ -22,9 +22,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.WebAccess.UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Cosmos", "Reusable.DataAccess.Cosmos\Reusable.DataAccess.Cosmos.csproj", "{EFADB17A-C5C8-4539-A428-99030F065FB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.DataAccess.Common", "Reusable.DataAccess.Common\Reusable.DataAccess.Common.csproj", "{B16CC6F1-9AF7-4329-A3A7-C6870EC351DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Common", "Reusable.DataAccess.Common\Reusable.DataAccess.Common.csproj", "{B16CC6F1-9AF7-4329-A3A7-C6870EC351DD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Cosmos.IntegrationTests", "Reusable.DataAccess.Cosmos.IntegrationTests\Reusable.DataAccess.Cosmos.IntegrationTests.csproj", "{81163AF2-A8B5-4A9D-B9BD-526EB25324BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Sqlite", "Reusable.DataAccess.Sqlite\Reusable.DataAccess.Sqlite.csproj", "{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.DataAccess.Sqlite.IntegrationTests", "Reusable.DataAccess.Sqlite.IntegrationTests\Reusable.DataAccess.Sqlite.IntegrationTests.csproj", "{744E5D96-7F49-4097-84BE-60DCAE73FE91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,6 +110,22 @@ Global
 		{81163AF2-A8B5-4A9D-B9BD-526EB25324BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{81163AF2-A8B5-4A9D-B9BD-526EB25324BE}.Release|x64.ActiveCfg = Release|x64
 		{81163AF2-A8B5-4A9D-B9BD-526EB25324BE}.Release|x64.Build.0 = Release|x64
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Debug|x64.Build.0 = Debug|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Release|x64.ActiveCfg = Release|Any CPU
+		{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}.Release|x64.Build.0 = Release|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Debug|x64.Build.0 = Debug|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Release|x64.ActiveCfg = Release|Any CPU
+		{744E5D96-7F49-4097-84BE-60DCAE73FE91}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
