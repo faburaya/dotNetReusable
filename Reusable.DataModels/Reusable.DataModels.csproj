@@ -3,12 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <SignAssembly>false</SignAssembly>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>data, model, azure, cosmos</PackageTags>
+    <PackageTags>data model, azure, cosmos, rdbms, attributes</PackageTags>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Platforms>x64;AnyCPU</Platforms>

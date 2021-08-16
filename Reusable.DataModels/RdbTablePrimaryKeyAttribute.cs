@@ -9,6 +9,11 @@ namespace Reusable.DataModels
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class RdbTablePrimaryKeyAttribute : Attribute
     {
-        public ValueSortingOrder SortingOrder { get; }
+        public ValueSortingOrder SortingOrder { get; set; }
+
+        public RdbTablePrimaryKeyAttribute()
+        {
+            SortingOrder = ValueSortingOrder.Ascending;
+        }
     }
 }

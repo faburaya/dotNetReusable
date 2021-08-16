@@ -10,12 +10,18 @@ namespace Reusable.DataModels
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class RdbTableIndexAttribute : Attribute
     {
-        public ValueSortingOrder SortingOrder { get; }
+        public ValueSortingOrder SortingOrder { get; set; }
 
         /// <summary>
         /// Zusätzliche SQL-Klausen, die für die Erzeugung des Indexes
         /// durch "CREATE INDEX" verwendet werden sollen.
         /// </summary>
-        public string AdditionalSqlClauses { get; }
+        public string AdditionalSqlClauses { get; set; }
+
+        public RdbTableIndexAttribute()
+        {
+            SortingOrder = ValueSortingOrder.Ascending;
+            AdditionalSqlClauses = "";
+        }
     }
 }
