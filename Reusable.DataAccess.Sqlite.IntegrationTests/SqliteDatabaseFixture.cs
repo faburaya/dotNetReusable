@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 using Dapper;
 using Xunit;
 
 namespace Reusable.DataAccess.Sqlite.IntegrationTests
 {
-    public class SqliteDatabaseFixture : IDisposable
+    internal class SqliteDatabaseFixture : IDisposable
     {
         public string DatabaseFilePath => "sqlite-db.dat";
-
-        public string TableName => "MeineTabelle";
 
         public IDbConnection Connection { get; }
 
@@ -19,7 +19,67 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
             Connection = SqliteDatabaseCreationHelper.OpenOrCreateDatabase(DatabaseFilePath);
             Assert.NotNull(Connection);
             Connection.Open();
+            DropDatabase(Connection);
         }
+
+        private static IEnumerable<SqliteSchema> QueryDatabaseObjects(IDbConnection connection)
+        {
+            return connection.Query<SqliteSchema>("select type as Type, name as EntityName, tbl_name as TableName, sql as CreateStatement from sqlite_schema;");
+        }
+
+        public SqliteSchema ReadActualTableSchemaFromDatabase(string tableName)
+        {
+            var databaseObjects = QueryDatabaseObjects(Connection);
+            Assert.NotEmpty(databaseObjects);
+
+            SqliteSchema actualTable = (
+                from x in databaseObjects
+                where x.Type.ToLower() == "table"
+                    && x.EntityName.ToLower() == tableName.ToLower()
+                select x
+            ).FirstOrDefault();
+
+            return actualTable;
+        }
+
+        public SqliteSchema ReadIndexSchemaFromDatabase(string tableName, string columnName)
+        {
+            var databaseObjects = QueryDatabaseObjects(Connection);
+            Assert.NotEmpty(databaseObjects);
+
+            SqliteSchema actualTable = (
+                from x in databaseObjects
+                where x.Type.ToLower() == "index"
+                    && x.TableName.ToLower() == tableName.ToLower()
+                    && x.CreateStatement.ToLower().Contains(columnName.ToLower())
+                select x
+            ).FirstOrDefault();
+
+            return actualTable;
+        }
+
+        private static void DropDatabase(IDbConnection connection)
+        {
+            using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+
+            var databaseObjects = QueryDatabaseObjects(connection);
+
+            var indices = (from x in databaseObjects where x.Type.ToLower() == "index" select x.EntityName);
+            foreach (string index in indices)
+            {
+                connection.Execute($"drop index {index};");
+            }
+
+            var tables = (from x in databaseObjects where x.Type.ToLower() == "table" select x.EntityName);
+            foreach (string table in tables)
+            {
+                connection.Execute($"drop table {table};");
+            }
+
+            transaction.Commit();
+        }
+
+        #region Entsorgung
 
         private bool _disposed = false;
 
@@ -30,7 +90,6 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
 
             if (disposing && Connection != null)
             {
-                Connection.Execute($"drop table if exists {TableName};");
                 Connection.Close();
                 Connection.Dispose();
             }
@@ -45,6 +104,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         }
 
         ~SqliteDatabaseFixture() => Dispose(false);
+
+        #endregion
 
     }// end of class SqliteDatabaseFixture
 

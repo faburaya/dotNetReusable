@@ -6,12 +6,12 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
     /// </summary>
     internal class SqliteSchema
     {
-        public string type { get; set; }
+        public string Type { get; set; }
 
-        public string name { get; set; }
+        public string EntityName { get; set; }
 
-        public string tbl_name { get; set; }
+        public string TableName { get; set; }
 
-        public string sql { get; set; }
+        public string CreateStatement { get; set; }
     }
 }

@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Data;
 
 using Dapper;
 using Xunit;
@@ -9,42 +7,72 @@ using Reusable.DataModels;
 
 namespace Reusable.DataAccess.Sqlite.IntegrationTests
 {
-    [Collection("IntegrationTests")]
-    public class SqliteDatabaseCreationHelperTest
+    public class SqliteDatabaseCreationHelperTest : IDisposable
     {
+        private string TableName => "MeineTabelle";
+
         private SqliteDatabaseFixture Fixture { get; }
 
-        public SqliteDatabaseCreationHelperTest(SqliteDatabaseFixture testFixture)
+        #region Einrichtung und Entsorgung des Fixtures
+
+        public SqliteDatabaseCreationHelperTest()
         {
-            Fixture = testFixture;
+            Fixture = new SqliteDatabaseFixture();
         }
+
+        private bool _disposed = false;
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+                Fixture.Dispose();
+
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~SqliteDatabaseCreationHelperTest() => Dispose(false);
+
+        #endregion
 
         [Fact]
         public void CreateTableIfNotExistent_WhenSimplestType()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MySimpleClass>(Fixture.TableName, Fixture.Connection).Wait();
+            helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Wait();
 
-            SqliteSchema actualTable =
-                ReadActualTableSchemaFromDatabase(Fixture.TableName, Fixture.Connection);
-
+            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
             Assert.NotNull(actualTable);
 
-            CheckTableCreationStatement(Fixture.TableName, actualTable.sql, new[] { "Id integer" });
+            CheckTableCreationStatement(TableName, actualTable.CreateStatement, new[] { "Id integer" });
+        }
+
+        [Fact]
+        public void CreateTableIfNotExistent_WhenTableAlreadyExists()
+        {
+            Fixture.Connection.Execute($"create table {TableName} (dummy_column integer)");
+            var helper = new SqliteDatabaseCreationHelper();
+            helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Wait();
+            Assert.NotNull(Fixture.ReadActualTableSchemaFromDatabase(TableName));
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenManyTypes_ThenTableHasCorrespondingSqlTypes()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<Person>(Fixture.TableName, Fixture.Connection).Wait();
+            helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Wait();
 
-            SqliteSchema actualTable =
-                ReadActualTableSchemaFromDatabase(Fixture.TableName, Fixture.Connection);
-
+            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
             Assert.NotNull(actualTable);
 
-            CheckTableCreationStatement(Fixture.TableName, actualTable.sql, new[] {
+            CheckTableCreationStatement(TableName, actualTable.CreateStatement, new[] {
                 "Id integer",
                 "Name text",
                 "Gender text",
@@ -60,15 +88,13 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKey()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(Fixture.TableName, Fixture.Connection).Wait();
+            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(TableName, Fixture.Connection).Wait();
 
-            SqliteSchema actualTable =
-                ReadActualTableSchemaFromDatabase(Fixture.TableName, Fixture.Connection);
-
+            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
             Assert.NotNull(actualTable);
 
-            CheckTableCreationStatement(Fixture.TableName,
-                                        actualTable.sql,
+            CheckTableCreationStatement(TableName,
+                                        actualTable.CreateStatement,
                                         new[] { "Id integer not null primary key" });
         }
 
@@ -76,32 +102,23 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasIndex()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithIndex>(Fixture.TableName, Fixture.Connection).Wait();
-
-            SqliteSchema indexSchema =
-                ReadIndexSchemaFromDatabase(Fixture.TableName, "Number", Fixture.Connection);
-
-            Assert.NotNull(indexSchema);
+            helper.CreateTableIfNotExistentAsync<MyClassWithIndex>(TableName, Fixture.Connection).Wait();
+            Assert.NotNull(Fixture.ReadIndexSchemaFromDatabase(TableName, "Id"));
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKeyAndIndex()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(Fixture.TableName, Fixture.Connection).Wait();
+            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(TableName, Fixture.Connection).Wait();
 
-            SqliteSchema indexSchema =
-                ReadIndexSchemaFromDatabase(Fixture.TableName, "Number", Fixture.Connection);
+            Assert.NotNull(Fixture.ReadIndexSchemaFromDatabase(TableName, "Number"));
 
-            Assert.NotNull(indexSchema);
-
-            SqliteSchema actualTable =
-                ReadActualTableSchemaFromDatabase(Fixture.TableName, Fixture.Connection);
-
+            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
             Assert.NotNull(actualTable);
 
-            CheckTableCreationStatement(Fixture.TableName,
-                                        actualTable.sql,
+            CheckTableCreationStatement(TableName,
+                                        actualTable.CreateStatement,
                                         new[] { "Id integer not null primary key" });
         }
 
@@ -110,9 +127,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             var helper = new SqliteDatabaseCreationHelper();
 
-            Assert.ThrowsAsync<ApplicationException>(() =>
+            Assert.ThrowsAsync<Common.OrmException>(() =>
                 helper.CreateTableIfNotExistentAsync<MyClassWithTwoPrimaryKeys>(
-                    Fixture.TableName, Fixture.Connection)
+                    TableName, Fixture.Connection)
             );
         }
 
@@ -121,53 +138,15 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             var helper = new SqliteDatabaseCreationHelper();
 
-            Assert.ThrowsAsync<ApplicationException>(() =>
+            Assert.ThrowsAsync<Common.OrmException>(() =>
                 helper.CreateTableIfNotExistentAsync<MyClassWithConflictingAttributes>(
-                    Fixture.TableName, Fixture.Connection)
+                    TableName, Fixture.Connection)
             );
         }
 
-        private static SqliteSchema ReadActualTableSchemaFromDatabase(string tableName,
-                                                                      IDbConnection connection)
-        {
-            var databaseObjects =
-                connection.Query<SqliteSchema>("select type, name, tbl_name, sql from sqlite_schema;");
-
-            Assert.NotEmpty(databaseObjects);
-
-            SqliteSchema actualTable = (
-                from x in databaseObjects
-                where x.type.ToLower() == "table"
-                    && x.name.ToLower() == tableName.ToLower()
-                select x
-            ).FirstOrDefault();
-
-            return actualTable;
-        }
-
-        private static SqliteSchema ReadIndexSchemaFromDatabase(string tableName,
-                                                                string columnName,
-                                                                IDbConnection connection)
-        {
-            var databaseObjects =
-                connection.Query<SqliteSchema>("select type, name, tbl_name, sql from sqlite_schema;");
-
-            Assert.NotEmpty(databaseObjects);
-
-            SqliteSchema actualTable = (
-                from x in databaseObjects
-                where x.type.ToLower() == "index"
-                    && x.tbl_name.ToLower() == tableName.ToLower()
-                    && x.sql.ToLower().Contains(columnName.ToLower())
-                select x
-            ).FirstOrDefault();
-
-            return actualTable;
-        }
-
-        private void CheckTableCreationStatement(string tableName,
-                                                 string statement,
-                                                 string[] columnDefinitions)
+        private static void CheckTableCreationStatement(string tableName,
+                                                        string statement,
+                                                        string[] columnDefinitions)
         {
             statement = statement.ToLower();
 
