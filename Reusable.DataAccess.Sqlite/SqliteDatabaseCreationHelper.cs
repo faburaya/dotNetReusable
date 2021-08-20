@@ -15,7 +15,7 @@ namespace Reusable.DataAccess.Sqlite
     /// Hilft bei der Herstellung einer Verbindung mit einer Datenbank,
     /// die vielleicht noch nicht existiert oder leer ist.
     /// </summary>
-    public class SqliteDatabaseCreationHelper
+    public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
     {
         private static readonly SortedList<string, string> clrToSqliteType;
 
@@ -53,7 +53,8 @@ namespace Reusable.DataAccess.Sqlite
         /// <returns>Eine Verbindung (ADO.NET) mit der Datenbank.</returns>
         public static IDbConnection OpenOrCreateDatabase(string databaseFilePath)
         {
-            string connectionString = new SqliteConnectionStringBuilder() {
+            string connectionString = new SqliteConnectionStringBuilder()
+            {
                 Mode = SqliteOpenMode.ReadWriteCreate,
                 Cache = SqliteCacheMode.Shared,
                 DataSource = databaseFilePath
