@@ -56,7 +56,7 @@ namespace Reusable.WebAccess
                         continue;
                     }
 
-                    throw new ApplicationException($"Das Abrufen von Hypertext aus der URL {url} is gescheitert!", ex);
+                    throw new Exception($"Das Abrufen von Hypertext aus der URL {url} is gescheitert!", ex);
                 }
             }
         }

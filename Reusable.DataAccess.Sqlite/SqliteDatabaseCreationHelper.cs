@@ -111,7 +111,7 @@ namespace Reusable.DataAccess.Sqlite
                 {
                     if (hasAlreadyPrimaryKey)
                     {
-                        throw new ApplicationException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über mehrere Primärschlüsseln!");
+                        throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über mehrere Primärschlüsseln!");
                     }
                     hasAlreadyPrimaryKey = true;
 
@@ -129,7 +129,7 @@ namespace Reusable.DataAccess.Sqlite
                 {
                     if (primaryKeyAttribute != null)
                     {
-                        throw new ApplicationException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über eine Eigenschaft, die gleichzeitig als Primärschlüssel und Index gilt!");
+                        throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über eine Eigenschaft, die gleichzeitig als Primärschlüssel und Index gilt!");
                     }
 
                     statements.Add($"create index if not exists {tableName}_{propertyInfo.Name} on {tableName} ({propertyInfo.Name} {(tableIndexAttribute.SortingOrder == ValueSortingOrder.Ascending ? "asc" : "desc")}) {tableIndexAttribute.AdditionalSqlClauses};");
