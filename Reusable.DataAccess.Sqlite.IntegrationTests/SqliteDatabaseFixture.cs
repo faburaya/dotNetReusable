@@ -51,7 +51,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
                 from x in databaseObjects
                 where x.Type.ToLower() == "index"
                     && x.TableName.ToLower() == tableName.ToLower()
-                    && x.CreateStatement.ToLower().Contains(columnName.ToLower())
+                    // die Reihen mit "sqlite_autoindex_*" weisen keine Anweisung auf
+                    && (x.CreateStatement ?? "").ToLower().Contains(columnName.ToLower())
                 select x
             ).FirstOrDefault();
 
@@ -63,13 +64,6 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
             using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
 
             var databaseObjects = QueryDatabaseObjects(connection);
-
-            var indices = (from x in databaseObjects where x.Type.ToLower() == "index" select x.EntityName);
-            foreach (string index in indices)
-            {
-                connection.Execute($"drop index {index};");
-            }
-
             var tables = (from x in databaseObjects where x.Type.ToLower() == "table" select x.EntityName);
             foreach (string table in tables)
             {

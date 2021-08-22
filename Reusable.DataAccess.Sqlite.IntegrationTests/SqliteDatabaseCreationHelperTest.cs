@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Reflection;
 
 using Dapper;
 using Xunit;
@@ -47,11 +49,7 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             var helper = new SqliteDatabaseCreationHelper();
             helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Wait();
-
-            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
-            Assert.NotNull(actualTable);
-
-            CheckTableCreationStatement(TableName, actualTable.CreateStatement, new[] { "Id integer" });
+            CheckTableCreationStatement<MySimpleClass>(new[] { "Id integer" });
         }
 
         [Fact]
@@ -69,10 +67,7 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
             var helper = new SqliteDatabaseCreationHelper();
             helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Wait();
 
-            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
-            Assert.NotNull(actualTable);
-
-            CheckTableCreationStatement(TableName, actualTable.CreateStatement, new[] {
+            CheckTableCreationStatement<Person>(new[] {
                 "Id integer",
                 "Name text",
                 "Gender text",
@@ -89,21 +84,31 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             var helper = new SqliteDatabaseCreationHelper();
             helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(TableName, Fixture.Connection).Wait();
-
-            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
-            Assert.NotNull(actualTable);
-
-            CheckTableCreationStatement(TableName,
-                                        actualTable.CreateStatement,
-                                        new[] { "Id integer not null primary key" });
+            CheckTableCreationStatement<MyClassWithPrimaryKey>(new[] { "Id integer not null primary key asc" });
         }
 
         [Fact]
-        public void CreateTableIfNotExistent_WhenTypeHasIndex()
+        public void CreateTableIfNotExistent_WhenTypeHasIndexOrderAsc()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithIndex>(TableName, Fixture.Connection).Wait();
-            Assert.NotNull(Fixture.ReadIndexSchemaFromDatabase(TableName, "Id"));
+            helper.CreateTableIfNotExistentAsync<MyClassWithIndexAsc>(TableName, Fixture.Connection).Wait();
+            CheckIndexCreationStatement<MyClassWithIndexAsc>("Id");
+        }
+
+        [Fact]
+        public void CreateTableIfNotExistent_WhenTypeHasIndexOrderDesc()
+        {
+            var helper = new SqliteDatabaseCreationHelper();
+            helper.CreateTableIfNotExistentAsync<MyClassWithIndexDesc>(TableName, Fixture.Connection).Wait();
+            CheckIndexCreationStatement<MyClassWithIndexDesc>("Id");
+        }
+
+        [Fact]
+        public void CreateTableIfNotExistent_WhenTypeHasIndexWithContraint()
+        {
+            var helper = new SqliteDatabaseCreationHelper();
+            helper.CreateTableIfNotExistentAsync<MyClassWithContrainedIndex>(TableName, Fixture.Connection).Wait();
+            CheckIndexCreationStatement<MyClassWithContrainedIndex>("Id");
         }
 
         [Fact]
@@ -111,15 +116,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             var helper = new SqliteDatabaseCreationHelper();
             helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(TableName, Fixture.Connection).Wait();
-
-            Assert.NotNull(Fixture.ReadIndexSchemaFromDatabase(TableName, "Number"));
-
-            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
-            Assert.NotNull(actualTable);
-
-            CheckTableCreationStatement(TableName,
-                                        actualTable.CreateStatement,
-                                        new[] { "Id integer not null primary key" });
+            CheckTableCreationStatement<MyClassWithPrimaryKeyAndIndex>(new[] { "Id integer not null primary key desc" });
+            CheckIndexCreationStatement<MyClassWithPrimaryKeyAndIndex>("Number");
         }
 
         [Fact]
@@ -144,20 +142,51 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
             );
         }
 
-        private static void CheckTableCreationStatement(string tableName,
-                                                        string statement,
-                                                        string[] columnDefinitions)
+        private void CheckTableCreationStatement<DataType>(string[] columnDefinitions)
         {
-            statement = statement.ToLower();
+            SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
+            Assert.NotNull(actualTable);
 
+            string statement = actualTable.CreateStatement.ToLower();
             Assert.False(string.IsNullOrWhiteSpace(statement));
-            Assert.StartsWith("create table", statement);
-            Assert.Contains(tableName.ToLower(), statement);
 
             foreach (string column in columnDefinitions)
             {
                 Assert.Contains(column.ToLower(), statement);
             }
+        }
+
+        private void CheckIndexCreationStatement<DataType>(string columnName)
+        {
+            SqliteSchema actualIndex = Fixture.ReadIndexSchemaFromDatabase(TableName, columnName);
+            Assert.NotNull(actualIndex);
+
+            string statement = actualIndex.CreateStatement.ToLower();
+            Assert.False(string.IsNullOrWhiteSpace(statement));
+
+            var attribute = GetAttributeFromProperty<RdbTableIndexAttribute>(columnName, typeof(DataType));
+            Assert.NotNull(attribute);
+            Assert.Contains(attribute.AdditionalSqlClauses, statement);
+
+            switch (attribute.SortingOrder)
+            {
+                case ValueSortingOrder.Ascending:
+                    Assert.Contains("asc", statement);
+                    break;
+                case ValueSortingOrder.Descending:
+                    Assert.Contains("desc", statement);
+                    break;
+            }
+        }
+
+        private static AttributeType GetAttributeFromProperty<AttributeType>(
+            string propertyName, Type dataType) where AttributeType : Attribute
+        {
+            PropertyInfo propertyInfo = (from property in dataType.GetProperties()
+                                         where property.Name == propertyName
+                                         select property).FirstOrDefault();
+            Assert.NotNull(propertyInfo);
+            return propertyInfo.GetCustomAttribute<AttributeType>();
         }
 
     }// end of class SqliteDatabaseCreationHelperTest
@@ -184,33 +213,45 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
 
     #region valid types
 
-    internal class MySimpleClass
+    class MySimpleClass
     {
         public int Id { get; set; }
     }
 
-    internal class MyClassWithPrimaryKey
+    class MyClassWithPrimaryKey
     {
         [RdbTablePrimaryKey]
         public int Id { get; set; }
     }
 
-    internal class MyClassWithIndex
+    class MyClassWithIndexAsc
     {
-        [RdbTableIndex]
+        [RdbTableIndex(SortingOrder = ValueSortingOrder.Ascending)]
         public int Id { get; set; }
     }
 
-    internal class MyClassWithPrimaryKeyAndIndex
+    class MyClassWithIndexDesc
     {
-        [RdbTablePrimaryKey]
+        [RdbTableIndex(SortingOrder = ValueSortingOrder.Descending)]
+        public int Id { get; set; }
+    }
+
+    class MyClassWithContrainedIndex
+    {
+        [RdbTableIndex(AdditionalSqlClauses = "where id < 100")]
+        public int Id { get; set; }
+    }
+
+    class MyClassWithPrimaryKeyAndIndex
+    {
+        [RdbTablePrimaryKey(SortingOrder = ValueSortingOrder.Descending)]
         public int Id { get; set; }
 
         [RdbTableIndex]
         public int Number { get; set; }
     }
 
-    internal class Person
+    class Person
     {
         public int Id { get; set; }
 
