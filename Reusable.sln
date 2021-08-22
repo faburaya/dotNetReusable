@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataModels.UnitTes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FE52B68D-75D9-478A-8585-3211C04AB3D0}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -28,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Cosmos.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Sqlite", "Reusable.DataAccess.Sqlite\Reusable.DataAccess.Sqlite.csproj", "{FC8CE196-2CD2-42D2-AE7C-D97519BD96F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reusable.DataAccess.Sqlite.IntegrationTests", "Reusable.DataAccess.Sqlite.IntegrationTests\Reusable.DataAccess.Sqlite.IntegrationTests.csproj", "{744E5D96-7F49-4097-84BE-60DCAE73FE91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reusable.DataAccess.Sqlite.IntegrationTests", "Reusable.DataAccess.Sqlite.IntegrationTests\Reusable.DataAccess.Sqlite.IntegrationTests.csproj", "{744E5D96-7F49-4097-84BE-60DCAE73FE91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
