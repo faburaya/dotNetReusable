@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.DataAccess.Sqlite</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper">
+            <inheritdoc cref="T:Reusable.DataAccess.Common.IDatabaseCreationHelper"/>
+        </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.OpenOrCreateDatabase(System.String)">
+            <inheritdoc/>
+            <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.CreateTableIfNotExistentAsync``1(System.String,System.Data.IDbConnection)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.GenerateStatementsToCreateSchema(System.String,System.Type,System.Collections.Generic.IList{System.String}@)">
+            <summary>
+            Erzeugt SQL-Anweisungen zum Erstellen der Tabelle und ihre Indices.
+            </summary>
+            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+            <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
+            <param name="statements">Die erzeugten SQL-Anweisungen.</param>
+        </member>
+    </members>
+</doc>

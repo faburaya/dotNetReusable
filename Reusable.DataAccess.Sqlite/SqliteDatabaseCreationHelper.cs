@@ -11,10 +11,7 @@ using Reusable.DataModels;
 
 namespace Reusable.DataAccess.Sqlite
 {
-    /// <summary>
-    /// Hilft bei der Herstellung einer Verbindung mit einer Datenbank,
-    /// die vielleicht noch nicht existiert oder leer ist.
-    /// </summary>
+    /// <inheritdoc cref="Common.IDatabaseCreationHelper"/>
     public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
     {
         private static readonly SortedList<string, string> clrToSqliteType;
@@ -45,13 +42,9 @@ namespace Reusable.DataAccess.Sqlite
             };
         }
 
-        /// <summary>
-        /// Stellt eine neue Verbindung mit der Datenbank her.
-        /// Wenn die Datenbank nicht existiert, wird er erstellt.
-        /// </summary>
-        /// <param name="databaseFilePath">Das Pfad der Datei, welche die SQLite Datenbank enthält.</param>
-        /// <returns>Eine Verbindung (ADO.NET) mit der Datenbank.</returns>
-        public static IDbConnection OpenOrCreateDatabase(string databaseFilePath)
+        /// <inheritdoc/>
+        /// <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
+        public IDbConnection OpenOrCreateDatabase(string databaseFilePath)
         {
             string connectionString = new SqliteConnectionStringBuilder()
             {
@@ -63,13 +56,7 @@ namespace Reusable.DataAccess.Sqlite
             return new SqliteConnection(connectionString);
         }
 
-        /// <summary>
-        /// Erstellt eine Tabelle in der Datenbank zur Speicherung des angegeben Datentyp,
-        /// falls sie nicht vorhanden ist.
-        /// </summary>
-        /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
-        /// <param name="tableName">Der Name der Tabelle.</param>
-        /// <param name="connection">Die Verbindung mit der Datenbank.</param>
+        /// <inheritdoc/>
         public async Task CreateTableIfNotExistentAsync<DataType>(string tableName, IDbConnection connection)
         {
             GenerateStatementsToCreateSchema(tableName, typeof(DataType), out IList<string> statements);

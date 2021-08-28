@@ -10,13 +10,11 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
 {
     internal class SqliteDatabaseFixture : IDisposable
     {
-        public string DatabaseFilePath => "sqlite-db.dat";
-
         public IDbConnection Connection { get; }
 
         public SqliteDatabaseFixture()
         {
-            Connection = SqliteDatabaseCreationHelper.OpenOrCreateDatabase(DatabaseFilePath);
+            Connection = new SqliteDatabaseCreationHelper().OpenOrCreateDatabase("sqlite-db.dat");
             Assert.NotNull(Connection);
             Connection.Open();
             DropDatabase(Connection);
