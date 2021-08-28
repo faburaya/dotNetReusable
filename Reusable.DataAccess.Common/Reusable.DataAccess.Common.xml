@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.DataAccess.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.DataAccess.Common.IDatabaseCreationHelper">
+            <summary>
+            Hilft bei der Herstellung einer Verbindung mit einer Datenbank,
+            die vielleicht noch nicht existiert oder leer ist.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.IDatabaseCreationHelper.OpenOrCreateDatabase(System.String)">
+            <summary>
+            Stellt eine neue Verbindung mit der Datenbank her.
+            Wenn die Datenbank nicht existiert, wird er erstellt.
+            </summary>
+            <param name="dataSource">Das DataSource Teil der Verbindungzeichenkette.</param>
+            <returns>Eine Verbindung (ADO.NET) mit der Datenbank.</returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.IDatabaseCreationHelper.CreateTableIfNotExistentAsync``1(System.String,System.Data.IDbConnection)">
+            <summary>
+            Wenn nicht vorhanden, erstellt eine Tabelle zur Speicherung eines gegebenen Datentyps.
+            </summary>
+            <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
+            <param name="tableName">Der Name der Tabelle.</param>
+            <param name="connection">Die Verbindung mit der Datenbank.</param>
+        </member>
+        <member name="T:Reusable.DataAccess.Common.ITableAccess`1">
+            <summary>
+            Schnittstelle für Ausfüllung der Datenbank mit ursprünglichen Daten.
+            </summary>
+            <remarks>
+            Für eine relationale Datenbank ist die Einheit der Speicherung eine Tabelle,
+            aber für Azure Cosmos ist es das Container für den gegebenen Datentyp.
+            </remarks>
+            <typeparam name="DataType">Der zu ausfüllende Datentyp.</typeparam>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.ITableAccess`1.Insert(`0)">
+            <summary>
+            Fügt eine neue Reihe (Element / Unterlage).
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.ITableAccess`1.IsEmpty">
+            <summary>
+            Prüft, ob die Tabelle leer ist.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.ITableAccess`1.Commit">
+            <summary>
+            Gewährleistet die Speicherung der bisherig gesammelten Objekten.
+            Die Implementierung ist nicht dazu verpflichtet,
+            dass die Vorgänge transaktional durchgeführt werden.
+            </summary>
+        </member>
+        <member name="T:Reusable.DataAccess.Common.OrmException">
+            <summary>
+            Implementiert eine Ausnahme für ORM Fehler.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.OrmException.#ctor(System.String,System.Exception)">
+            <summary>
+            Erstellt eine neue Instanz der Klasse <see cref="T:Reusable.DataAccess.Common.OrmException"/>.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+            <param name="innerEx">Die eingebettete Ausnahme.</param>
+        </member>
+        <member name="T:Reusable.DataAccess.Common.ServiceException">
+            <summary>
+            Implementiert eine Ausnahme für gescheiterte Vorgänge in einem Dienst.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Common.ServiceException.#ctor(System.String,System.Exception)">
+            <summary>
+            Erstellt eine neue Instanz der Klasse <see cref="T:Reusable.DataAccess.Common.ServiceException"/>.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+            <param name="innerEx">Die eingebettete Ausnahme.</param>
+        </member>
+    </members>
+</doc>

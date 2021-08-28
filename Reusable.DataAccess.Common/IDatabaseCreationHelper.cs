@@ -4,10 +4,19 @@ using System.Threading.Tasks;
 namespace Reusable.DataAccess.Common
 {
     /// <summary>
-    /// Hilft beim der Einrichung einer neuen Datenbank.
+    /// Hilft bei der Herstellung einer Verbindung mit einer Datenbank,
+    /// die vielleicht noch nicht existiert oder leer ist.
     /// </summary>
     public interface IDatabaseCreationHelper
     {
+        /// <summary>
+        /// Stellt eine neue Verbindung mit der Datenbank her.
+        /// Wenn die Datenbank nicht existiert, wird er erstellt.
+        /// </summary>
+        /// <param name="dataSource">Das DataSource Teil der Verbindungzeichenkette.</param>
+        /// <returns>Eine Verbindung (ADO.NET) mit der Datenbank.</returns>
+        IDbConnection OpenOrCreateDatabase(string dataSource);
+
         /// <summary>
         /// Wenn nicht vorhanden, erstellt eine Tabelle zur Speicherung eines gegebenen Datentyps.
         /// </summary>
