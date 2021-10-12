@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.WebAccess</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.WebAccess.DatenSauger`1">
+            <summary>
+            Ein Webcrawler für die Datensammlung von Webseiten durch die Durchsuchung von Hyperlinks.
+            </summary>
+            <remarks>
+            Implementiert die Datensammlung, sodass sie in einer bestimmten Webseite aufbricht.
+            Jede Webseite enthält Hyperlinks, die mithilfe von Schlüsselwörtern gefasst werden müssen,
+            und die dann zu einer anderen Webseite führen, was hiermit als "Hop" gennant wird.
+            </remarks>
+            <typeparam name="DataType">Der Typ für die Daten, die am Ende gesammelt werden.</typeparam>
+        </member>
+        <member name="M:Reusable.WebAccess.DatenSauger`1.#ctor(Reusable.WebAccess.IHypertextFetcher)">
+            <summary>
+            Erstellt eine neue Instanz.
+            </summary>
+            <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
+        </member>
+        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataAsync(System.Uri,System.Collections.Generic.IEnumerable{System.ValueTuple{Reusable.WebAccess.IHyperlinksParser,System.Collections.Generic.IEnumerable{System.String}}},Reusable.WebAccess.IHypertextContentParser{`0})">
+            <summary>
+            Startet die Datensammlung asynchron.
+            </summary>
+            <param name="firstUrl">Das URL der ersten Webseite.</param>
+            <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+            <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+            <returns>Eine asynchrone Aufgabe, die die gesamten gesammelten Daten verspricht.</returns>
+        </member>
+        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectData(System.Uri,System.Collections.Generic.IEnumerable{System.ValueTuple{Reusable.WebAccess.IHyperlinksParser,System.Collections.Generic.IEnumerable{System.String}}},Reusable.WebAccess.IHypertextContentParser{`0})">
+            <summary>
+            Führt die Datensammlung durch.
+            </summary>
+            <param name="firstUrl">Das URL der ersten Webseite.</param>
+            <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+            <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+            <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
+            <returns>Eine Liste mit den gesammelten Daten.</returns>
+        </member>
+        <member name="T:Reusable.WebAccess.HypertextFetcher">
+            <summary>
+            Gewährt die Fähigkeit zum Abrufen des Hypertext aus einer Webseite.
+            </summary>
+        </member>
+        <member name="M:Reusable.WebAccess.HypertextFetcher.#ctor(System.UInt32,System.UInt16)">
+            <summary>
+            Ertellt eine neue Instanz von <see cref="T:Reusable.WebAccess.HypertextFetcher"/>.
+            </summary>
+            <param name="maxRetries">Legt fest, wievielmal das Herunterladen zu versuchen ist.</param>
+            <param name="maxParallelWebRequests">Legt fest, wie viele parallel laufen dürfen.</param>
+        </member>
+        <member name="M:Reusable.WebAccess.HypertextFetcher.DownloadFrom(System.Uri)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.WebAccess.IHyperlinksParser">
+            <summary>
+            Schnittstelle für die Zergliederung von Links in Hypertext.
+            </summary>
+        </member>
+        <member name="M:Reusable.WebAccess.IHyperlinksParser.ParseHyperlinks(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Zergliedert bestimmte Links von Hypertext.
+            </summary>
+            <param name="hypertext">Der gegebene Hypertext.</param>
+            <param name="keywords">Die zu suchenden Schlüsselwörter, welche die Ergebnisse beschränken. Gibt nur die Marken zurück, die mit einem Schlüsselwort übereinstimmen. Der Vergleich unterscheidet nicht zwischen Klein- und Großschreibung. Wenn kein Schlüsselwort gegeben wird, hat dieser Parameter keine Wirkung.</param>
+        </member>
+        <member name="T:Reusable.WebAccess.IHypertextContentParser`1">
+            <summary>
+            Schnittstelle für die Zergliderung von Inhalt in Hypertext.
+            </summary>
+            <typeparam name="DataType">Der Typ, in dem die zergliederte Daten gespeichert werden sollen.</typeparam>
+        </member>
+        <member name="M:Reusable.WebAccess.IHypertextContentParser`1.ParseContent(System.String)">
+            <summary>
+            Zergliedert den gegebenen Hypertext.
+            </summary>
+            <param name="hypertext">Der zu zergliedernde Hypertext.</param>
+            <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
+        </member>
+        <member name="T:Reusable.WebAccess.IHypertextFetcher">
+            <summary>
+            Schnittstelle für das Herunterladen von Hypertext.
+            </summary>
+        </member>
+        <member name="M:Reusable.WebAccess.IHypertextFetcher.DownloadFrom(System.Uri)">
+            <summary>
+            Ladet den Hypertext aus einem gegebenen URL herunter.
+            </summary>
+            <param name="url">Das gegebene URL.</param>
+            <returns>Der Hypertext der Internetseite.</returns>
+        </member>
+    </members>
+</doc>

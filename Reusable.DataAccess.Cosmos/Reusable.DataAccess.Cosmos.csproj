@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="1.3.1" />
+    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="1.4.2" />
     <PackageReference Include="com.faburaya.Reusable.DataModels" Version="2.2.1" />
     <PackageReference Include="com.faburaya.Reusable.Utils" Version="3.1.5" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.20.1" />

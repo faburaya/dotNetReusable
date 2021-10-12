@@ -8,6 +8,11 @@ namespace Reusable.WebAccess
     /// </summary>
     public interface IHypertextFetcher
     {
+        /// <summary>
+        /// Ladet den Hypertext aus einem gegebenen URL herunter.
+        /// </summary>
+        /// <param name="url">Das gegebene URL.</param>
+        /// <returns>Der Hypertext der Internetseite.</returns>
         Task<string> DownloadFrom(Uri url);
     }
 }

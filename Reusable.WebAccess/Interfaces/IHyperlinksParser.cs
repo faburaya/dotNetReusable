@@ -12,8 +12,7 @@ namespace Reusable.WebAccess
         /// Zergliedert bestimmte Links von Hypertext.
         /// </summary>
         /// <param name="hypertext">Der gegebene Hypertext.</param>
-        /// <param name="keywords">Die zu suchenden Schlüsselwörter.</param>
-        /// <returns>Eine Liste mit Linkadressen.</returns>
+        /// <param name="keywords">Die zu suchenden Schlüsselwörter, welche die Ergebnisse beschränken. Gibt nur die Marken zurück, die mit einem Schlüsselwort übereinstimmen. Der Vergleich unterscheidet nicht zwischen Klein- und Großschreibung. Wenn kein Schlüsselwort gegeben wird, hat dieser Parameter keine Wirkung.</param>
         public IEnumerable<Uri> ParseHyperlinks(string hypertext,
                                                 IEnumerable<string> keywords);
     }

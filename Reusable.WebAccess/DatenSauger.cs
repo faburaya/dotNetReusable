@@ -39,13 +39,20 @@ namespace Reusable.WebAccess
             IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
             IHypertextContentParser<DataType> contentParser)
         {
-            var contents = new List<string>(capacity: hops.Count());
+            var contents = new List<(Uri, string)>(capacity: hops.Count());
             await CollectContentRecursivelyAsync(firstUrl, hops, contents);
 
             var collectedData = new List<DataType>();
-            foreach (string hypertext in contents)
+            foreach ((Uri url, string hypertext) in contents)
             {
-                collectedData.AddRange(contentParser.ParseContent(hypertext));
+                try
+                {
+                    collectedData.AddRange(contentParser.ParseContent(hypertext));
+                }
+                catch (Exception parserException)
+                {
+                    throw new Exception($"Zergliederung des Inhalts aus {url} ist gescheitert!", parserException);
+                }
             }
 
             return collectedData;
@@ -64,10 +71,10 @@ namespace Reusable.WebAccess
             IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
             IHypertextContentParser<DataType> contentParser)
         {
-            var contents = new List<string>(capacity: hops.Count());
+            var contents = new List<(Uri, string)>(capacity: hops.Count());
             Task contentDownloadTask = CollectContentRecursivelyAsync(firstUrl, hops, contents);
 
-            IEnumerable<string> availableContent;
+            IEnumerable<(Uri, string)> availableContent;
             int taken = 0;
             bool downloading = true;
             while (downloading)
@@ -78,12 +85,24 @@ namespace Reusable.WebAccess
                     availableContent = contents.Skip(taken).Take(contents.Count - taken);
                 }
 
-                foreach (string hypertext in availableContent)
+                foreach ((Uri url, string hypertext) in availableContent)
                 {
-                    foreach (DataType parsedObject in contentParser.ParseContent(hypertext))
+                    IEnumerable<DataType> parsedObjects;
+
+                    try
                     {
-                        yield return parsedObject;
+                        parsedObjects = contentParser.ParseContent(hypertext);
                     }
+                    catch (Exception parserException)
+                    {
+                        throw new Exception($"Zergliederung des Inhalts aus {url} ist gescheitert!", parserException);
+                    }
+
+                    foreach (DataType obj in parsedObjects)
+                    {
+                        yield return obj;
+                    }
+
                     ++taken;
                 } 
             }
@@ -92,22 +111,30 @@ namespace Reusable.WebAccess
         private async Task CollectContentRecursivelyAsync(
             Uri url,
             IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
-            List<string> contents)
+            List<(Uri, string)> contents)
         {
             string hypertext = await _hypertextFetcher.DownloadFrom(url);
 
             if (hops.Count() == 0)
             {
                 lock (contents)
-                    contents.Add(hypertext);
+                    contents.Add((url, hypertext));
                 return;
             }
 
-            IHyperlinksParser linksParser = hops.First().Item1;
-            IEnumerable<string> keywords = hops.First().Item2;
+            (IHyperlinksParser linksParser, IEnumerable<string> keywords) = hops.First();
+            IEnumerable<Uri> hyperlinks;
+
+            try
+            {
+                hyperlinks = linksParser.ParseHyperlinks(hypertext, keywords);
+            }
+            catch (Exception parserException)
+            {
+                throw new Exception($"Zergliederung der Hyperlinks im {url} ist gescheitert!", parserException);
+            }
 
             var nextHops = hops.Skip(1);
-            var hyperlinks = linksParser.ParseHyperlinks(hypertext, keywords);
             var recursiveCalls = new Task[hyperlinks.Count()];
 
             int idx = 0;

@@ -8,6 +8,11 @@ namespace Reusable.WebAccess
     /// <typeparam name="DataType">Der Typ, in dem die zergliederte Daten gespeichert werden sollen.</typeparam>
     public interface IHypertextContentParser<out DataType>
     {
+        /// <summary>
+        /// Zergliedert den gegebenen Hypertext.
+        /// </summary>
+        /// <param name="hypertext">Der zu zergliedernde Hypertext.</param>
+        /// <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
         public IEnumerable<DataType> ParseContent(string hypertext);
     }
 }

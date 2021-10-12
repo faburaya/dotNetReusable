@@ -28,12 +28,18 @@ namespace Reusable.WebAccess
 
         private TaskQueue _parallelRequests;
 
+        /// <summary>
+        /// Ertellt eine neue Instanz von <see cref="HypertextFetcher"/>.
+        /// </summary>
+        /// <param name="maxRetries">Legt fest, wievielmal das Herunterladen zu versuchen ist.</param>
+        /// <param name="maxParallelWebRequests">Legt fest, wie viele parallel laufen dürfen.</param>
         public HypertextFetcher(uint maxRetries = 5, ushort maxParallelWebRequests = 50)
         {
             _maxRetries = maxRetries;
             _parallelRequests = new TaskQueue(maxParallelWebRequests);
         }
 
+        /// <inheritdoc/>
         public async Task<string> DownloadFrom(Uri url)
         {
             uint attempt = 1;
