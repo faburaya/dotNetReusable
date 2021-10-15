@@ -13,6 +13,7 @@ namespace Reusable.WebAccess
         /// </summary>
         /// <param name="hypertext">Der zu zergliedernde Hypertext.</param>
         /// <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
+        /// <exception cref="ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         public IEnumerable<DataType> ParseContent(string hypertext);
     }
 }

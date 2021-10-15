@@ -15,11 +15,12 @@
             </remarks>
             <typeparam name="DataType">Der Typ für die Daten, die am Ende gesammelt werden.</typeparam>
         </member>
-        <member name="M:Reusable.WebAccess.DatenSauger`1.#ctor(Reusable.WebAccess.IHypertextFetcher)">
+        <member name="M:Reusable.WebAccess.DatenSauger`1.#ctor(Reusable.WebAccess.IHypertextFetcher,System.Action{Reusable.WebAccess.ParserException})">
             <summary>
             Erstellt eine neue Instanz.
             </summary>
             <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
+            <param name="exceptionHandler">Handler für aufgetretene Ausnahmen von Typ <see cref="T:Reusable.WebAccess.ParserException"/>.</param>
         </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataAsync(System.Uri,System.Collections.Generic.IEnumerable{System.ValueTuple{Reusable.WebAccess.IHyperlinksParser,System.Collections.Generic.IEnumerable{System.String}}},Reusable.WebAccess.IHypertextContentParser{`0})">
             <summary>
@@ -39,6 +40,15 @@
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
             <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
             <returns>Eine Liste mit den gesammelten Daten.</returns>
+        </member>
+        <member name="M:Reusable.WebAccess.DatenSauger`1.WrapCall``1(System.Func{System.Collections.Generic.IEnumerable{``0}},System.Uri)">
+            <summary>
+            Wickelt den Ruf einer Rückrufaktion ein, sodass eine eventuelle Ausnahme angemessen behandelt wird, ohne dass der Anrufer gestört wird.
+            </summary>
+            <typeparam name="ReturnType">Der Datentyp der zurückzugebenden Liste.</typeparam>
+            <param name="callback">Die einzuwickelnde Rückrufaktion.</param>
+            <param name="url">Gibt den kontext an, falls eine Ausnahme auftritt.</param>
+            <returns>Die Rückgabe der Rückrufaktion.</returns>
         </member>
         <member name="T:Reusable.WebAccess.HypertextFetcher">
             <summary>
@@ -66,6 +76,7 @@
             </summary>
             <param name="hypertext">Der gegebene Hypertext.</param>
             <param name="keywords">Die zu suchenden Schlüsselwörter, welche die Ergebnisse beschränken. Gibt nur die Marken zurück, die mit einem Schlüsselwort übereinstimmen. Der Vergleich unterscheidet nicht zwischen Klein- und Großschreibung. Wenn kein Schlüsselwort gegeben wird, hat dieser Parameter keine Wirkung.</param>
+            <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>
         <member name="T:Reusable.WebAccess.IHypertextContentParser`1">
             <summary>
@@ -79,6 +90,7 @@
             </summary>
             <param name="hypertext">Der zu zergliedernde Hypertext.</param>
             <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
+            <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>
         <member name="T:Reusable.WebAccess.IHypertextFetcher">
             <summary>
@@ -91,6 +103,18 @@
             </summary>
             <param name="url">Das gegebene URL.</param>
             <returns>Der Hypertext der Internetseite.</returns>
+        </member>
+        <member name="T:Reusable.WebAccess.ParserException">
+            <summary>
+            Stellt eine Ausnahme dar, die beim Zergliedern auftritt.
+            </summary>
+        </member>
+        <member name="M:Reusable.WebAccess.ParserException.#ctor(System.String,System.Exception)">
+            <summary>
+            Erstellt eine neue Instanz von <see cref="T:Reusable.WebAccess.ParserException"/>.
+            </summary>
+            <param name="message">Eine Nachricht.</param>
+            <param name="innerException">Die einzuwickelnde Ausnahme.</param>
         </member>
     </members>
 </doc>

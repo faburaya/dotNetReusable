@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,13 +19,18 @@ namespace Reusable.WebAccess
     {
         private readonly IHypertextFetcher _hypertextFetcher;
 
+        private readonly Action<ParserException> _exceptionHandler;
+
         /// <summary>
         /// Erstellt eine neue Instanz.
         /// </summary>
         /// <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
-        public DatenSauger(IHypertextFetcher hypertextFetcher)
+        /// <param name="exceptionHandler">Handler für aufgetretene Ausnahmen von Typ <see cref="ParserException"/>.</param>
+        public DatenSauger(IHypertextFetcher hypertextFetcher,
+                           Action<ParserException> exceptionHandler = null)
         {
             _hypertextFetcher = hypertextFetcher;
+            _exceptionHandler = exceptionHandler;
         }
 
         /// <summary>
@@ -45,14 +51,9 @@ namespace Reusable.WebAccess
             var collectedData = new List<DataType>();
             foreach ((Uri url, string hypertext) in contents)
             {
-                try
-                {
-                    collectedData.AddRange(contentParser.ParseContent(hypertext));
-                }
-                catch (Exception parserException)
-                {
-                    throw new Exception($"Zergliederung des Inhalts aus {url} ist gescheitert!", parserException);
-                }
+                collectedData.AddRange(
+                    WrapCall(() => contentParser.ParseContent(hypertext), url)
+                );
             }
 
             return collectedData;
@@ -87,16 +88,8 @@ namespace Reusable.WebAccess
 
                 foreach ((Uri url, string hypertext) in availableContent)
                 {
-                    IEnumerable<DataType> parsedObjects;
-
-                    try
-                    {
-                        parsedObjects = contentParser.ParseContent(hypertext);
-                    }
-                    catch (Exception parserException)
-                    {
-                        throw new Exception($"Zergliederung des Inhalts aus {url} ist gescheitert!", parserException);
-                    }
+                    IEnumerable<DataType> parsedObjects =
+                        WrapCall(() => contentParser.ParseContent(hypertext), url);
 
                     foreach (DataType obj in parsedObjects)
                     {
@@ -123,16 +116,8 @@ namespace Reusable.WebAccess
             }
 
             (IHyperlinksParser linksParser, IEnumerable<string> keywords) = hops.First();
-            IEnumerable<Uri> hyperlinks;
-
-            try
-            {
-                hyperlinks = linksParser.ParseHyperlinks(hypertext, keywords);
-            }
-            catch (Exception parserException)
-            {
-                throw new Exception($"Zergliederung der Hyperlinks im {url} ist gescheitert!", parserException);
-            }
+            IEnumerable<Uri> hyperlinks =
+                WrapCall(() => linksParser.ParseHyperlinks(hypertext, keywords), url);
 
             var nextHops = hops.Skip(1);
             var recursiveCalls = new Task[hyperlinks.Count()];
@@ -144,6 +129,37 @@ namespace Reusable.WebAccess
             }
 
             Task.WaitAll(recursiveCalls);
+        }
+
+        /// <summary>
+        /// Wickelt den Ruf einer Rückrufaktion ein, sodass eine eventuelle Ausnahme angemessen behandelt wird, ohne dass der Anrufer gestört wird.
+        /// </summary>
+        /// <typeparam name="ReturnType">Der Datentyp der zurückzugebenden Liste.</typeparam>
+        /// <param name="callback">Die einzuwickelnde Rückrufaktion.</param>
+        /// <param name="url">Gibt den kontext an, falls eine Ausnahme auftritt.</param>
+        /// <returns>Die Rückgabe der Rückrufaktion.</returns>
+        private IEnumerable<ReturnType> WrapCall<ReturnType>(Func<IEnumerable<ReturnType>> callback, Uri url)
+        {
+            try
+            {
+                return callback();
+            }
+            catch (ParserException exception)
+            {
+                var wrappedException =
+                    new ParserException($"Zergliederung ist gescheitert! URL = {url}", exception);
+
+                if (_exceptionHandler != null)
+                {
+                    _exceptionHandler(wrappedException);
+                }
+                else
+                {
+                    Trace.WriteLine(wrappedException);
+                }
+
+                return new ReturnType[0];
+            }
         }
 
     }// end of class DatenSauger

@@ -135,11 +135,22 @@ namespace Reusable.WebAccess.UnitTests
         }
 
         [Theory]
-        [InlineData(2)]
-        [InlineData(300)]
-        public void CollectData_WhenMultipleLinks_ThenParseContentFromAll(int websiteCount)
+        [InlineData(2, false)]
+        [InlineData(2, true)]
+        [InlineData(300, false)]
+        public void CollectData_WhenMultipleLinks_ThenParseContentFromAll(int websiteCount, bool withFailures)
         {
-            var finalWebsites = CreateManyFinalWebsites(websiteCount);
+            ParserException expectedParserError = null;
+            List<FakeFinalWebsite> finalWebsites = CreateManyFinalWebsites(websiteCount);
+            
+            if (withFailures)
+            {
+                expectedParserError = new ParserException("Ruhig: vorgetäuschter Fehler :-)");
+                finalWebsites.Add(new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
+                                                       "Hier steht fehlerhaftes HTML.",
+                                                       expectedParserError));
+            }
+
             var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
                                                   "Das ist nur ein Hop vor der endgültigen Webseiten",
                                                   from website in finalWebsites select website.url);
@@ -154,7 +165,9 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(finalWebsites, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit einem einzigen Hop:
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            ParserException actualParserException = null;
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object,
+                (ParserException ex) => { actualParserException = ex; });
             var hyperlinksParserMock = new Mock<IHyperlinksParser>(MockBehavior.Strict);
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
@@ -168,12 +181,26 @@ namespace Reusable.WebAccess.UnitTests
             contentParserMock.VerifyAll();
             hyperlinksParserMock.VerifyAll();
             hypertextFetcherMock.VerifyAll();
+
+            Assert.Equal(expectedParserError, actualParserException?.InnerException);
         }
 
-        [Fact]
-        public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected(bool withFailures)
         {
-            var finalWebsites = CreateManyFinalWebsites(100);
+            ParserException expectedParserError = null;
+            List<FakeFinalWebsite> finalWebsites = CreateManyFinalWebsites(100);
+
+            if (withFailures)
+            {
+                expectedParserError = new ParserException("Ruhig: vorgetäuschter Fehler :-)");
+                finalWebsites.Add(new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
+                                                       "Hier steht fehlerhaftes HTML.",
+                                                       expectedParserError));
+            }
+
             var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
                                                   "Das ist nur ein Hop vor der endgültigen Webseiten",
                                                   from website in finalWebsites select website.url);
@@ -188,7 +215,9 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(finalWebsites, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit einem einzigen Hop:
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            ParserException actualParserException = null;
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object,
+                (ParserException ex) => { actualParserException = ex; });
             var hyperlinksParserMock = new Mock<IHyperlinksParser>(MockBehavior.Strict);
 
             Task<IEnumerable<int>> asynchronousCollection =
@@ -216,6 +245,8 @@ namespace Reusable.WebAccess.UnitTests
             contentParserMock.VerifyAll();
             hyperlinksParserMock.VerifyAll();
             hypertextFetcherMock.VerifyAll();
+
+            Assert.Equal(expectedParserError, actualParserException?.InnerException);
         }
 
         private Mock<IHypertextFetcher> CreateMockToFetchHypertext(
@@ -241,10 +272,17 @@ namespace Reusable.WebAccess.UnitTests
         {
             expectedCollectedData = new List<int>();
             var mock = new Mock<IHypertextContentParser<int>>(MockBehavior.Strict);
-            foreach (var website in websites)
+            foreach (FakeFinalWebsite website in websites)
             {
-                mock.Setup(obj => obj.ParseContent(website.content)).Returns(website.parsedObjects);
-                expectedCollectedData.AddRange(website.parsedObjects);
+                if (website.error == null)
+                {
+                    mock.Setup(obj => obj.ParseContent(website.content)).Returns(website.parsedObjects);
+                    expectedCollectedData.AddRange(website.parsedObjects);
+                }
+                else
+                {
+                    mock.Setup(obj => obj.ParseContent(website.content)).Throws(website.error);
+                }
             }
             return mock;
         }
@@ -255,18 +293,30 @@ namespace Reusable.WebAccess.UnitTests
         {
             IEnumerable<string> keywordsForHyperlinks = new string[] { "Schlüssel", "Wörter" };
 
-            mock.Setup(
-                obj => obj.ParseHyperlinks(
-                    website.content,
-                    It.Is<IEnumerable<string>>(keywords =>
-                        keywords.SequenceEqual(keywordsForHyperlinks))
-                )
-            ).Returns(website.hyperlinks);
+            if (website.error == null)
+            {
+                mock.Setup(
+                    obj => obj.ParseHyperlinks(
+                        website.content,
+                        It.Is<IEnumerable<string>>(keywords =>
+                            keywords.SequenceEqual(keywordsForHyperlinks))
+                    )
+                ).Returns(website.hyperlinks);
+            }
+            else
+            {
+                mock.Setup(
+                    obj => obj.ParseHyperlinks(
+                        website.content,
+                        It.IsAny<IEnumerable<string>>()
+                    )
+                ).Throws(website.error);
+            }
 
             return (mock.Object, keywordsForHyperlinks);
         }
 
-        private IList<FakeFinalWebsite> CreateManyFinalWebsites(int count)
+        private List<FakeFinalWebsite> CreateManyFinalWebsites(int count)
         {
             var random = new Random();
             var websites = new List<FakeFinalWebsite>(capacity: count);
@@ -286,12 +336,22 @@ namespace Reusable.WebAccess.UnitTests
         public Uri url;
         public string content;
         public int[] parsedObjects;
+        public ParserException error;
 
         public FakeFinalWebsite(Uri url, string content, int[] parsedObjects)
         {
             this.url = url;
             this.content = content;
             this.parsedObjects = parsedObjects;
+            this.error = null;
+        }
+
+        public FakeFinalWebsite(Uri url, string content, ParserException error)
+        {
+            this.url = url;
+            this.content = content;
+            this.parsedObjects = null;
+            this.error = error;
         }
     }
 
@@ -300,12 +360,22 @@ namespace Reusable.WebAccess.UnitTests
         public Uri url;
         public string content;
         public IEnumerable<Uri> hyperlinks;
+        public ParserException error;
 
         public FakeHopWebsite(Uri url, string content, IEnumerable<Uri> hyperlinks)
         {
             this.url = url;
             this.content = content;
             this.hyperlinks = hyperlinks;
+            this.error = null;
+        }
+
+        public FakeHopWebsite(Uri url, string content, ParserException error)
+        {
+            this.url = url;
+            this.content = content;
+            this.hyperlinks = null;
+            this.error = error;
         }
     }
 
