@@ -140,14 +140,10 @@ namespace Reusable.WebAccess
         /// <returns>Die Rückgabe der Rückrufaktion.</returns>
         private IEnumerable<ReturnType> WrapCall<ReturnType>(Func<IEnumerable<ReturnType>> callback, Uri url)
         {
-            try
+            void HandleException(Exception exception)
             {
-                return callback();
-            }
-            catch (ParserException exception)
-            {
-                var wrappedException =
-                    new ParserException($"Zergliederung ist gescheitert! URL = {url}", exception);
+                var wrappedException = new ParserException(
+                    $"Die Zergliederung einer Internetseite ist nicht gelungen. ({url})", exception);
 
                 if (_exceptionHandler != null)
                 {
@@ -157,9 +153,23 @@ namespace Reusable.WebAccess
                 {
                     Trace.WriteLine(wrappedException);
                 }
-
-                return new ReturnType[0];
             }
+
+            try
+            {
+                return callback();
+            }
+            catch (ParserException exception)
+            {
+                HandleException(exception);
+            }
+            catch (AggregateException exception)
+                when (exception.InnerExceptions.All(ex => ex is ParserException))
+            {
+                HandleException(exception);
+            }
+
+            return new ReturnType[0];
         }
 
     }// end of class DatenSauger
