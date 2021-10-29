@@ -37,13 +37,15 @@ namespace Reusable.WebAccess
         /// Startet die Datensammlung asynchron.
         /// </summary>
         /// <param name="firstUrl">Das URL der ersten Webseite.</param>
-        /// <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+        /// <param name="hops">Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Rückrufaktionen.</param>
         /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+        /// <param name="shouldParseContent">Diese Rückrufaktion wird dem Aufruf von <paramref name="contentParser"/> weitergegeben, und entscheidet, wann der Inhalt zergliedert wird.</param>
         /// <returns>Eine asynchrone Aufgabe, die die gesamten gesammelten Daten verspricht.</returns>
         public async Task<IEnumerable<DataType>> CollectDataAsync(
             Uri firstUrl,
-            IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
-            IHypertextContentParser<DataType> contentParser)
+            IEnumerable<HyperlinksParserPackage> hops,
+            IHypertextContentParser<DataType> contentParser,
+            Func<string, bool> shouldParseContent)
         {
             var contents = new List<(Uri, string)>(capacity: hops.Count());
             await CollectContentRecursivelyAsync(firstUrl, hops, contents);
@@ -52,7 +54,7 @@ namespace Reusable.WebAccess
             foreach ((Uri url, string hypertext) in contents)
             {
                 collectedData.AddRange(
-                    WrapCall(() => contentParser.ParseContent(hypertext), url)
+                    WrapCall(() => contentParser.ParseContent(hypertext, shouldParseContent), url)
                 );
             }
 
@@ -63,14 +65,16 @@ namespace Reusable.WebAccess
         /// Führt die Datensammlung durch.
         /// </summary>
         /// <param name="firstUrl">Das URL der ersten Webseite.</param>
-        /// <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+        /// <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Rückrufaktionen.</param>
         /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+        /// <param name="shouldParseContent">Diese Rückrufaktion wird dem Aufruf von <paramref name="contentParser"/> weitergegeben, und entscheidet, wann der Inhalt zergliedert wird.</param>
         /// <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
         /// <returns>Eine Liste mit den gesammelten Daten.</returns>
         public IEnumerable<DataType> CollectData(
             Uri firstUrl,
-            IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
-            IHypertextContentParser<DataType> contentParser)
+            IEnumerable<HyperlinksParserPackage> hops,
+            IHypertextContentParser<DataType> contentParser,
+            Func<string, bool> shouldParseContent)
         {
             var contents = new List<(Uri, string)>(capacity: hops.Count());
             Task contentDownloadTask = CollectContentRecursivelyAsync(firstUrl, hops, contents);
@@ -89,7 +93,7 @@ namespace Reusable.WebAccess
                 foreach ((Uri url, string hypertext) in availableContent)
                 {
                     IEnumerable<DataType> parsedObjects =
-                        WrapCall(() => contentParser.ParseContent(hypertext), url);
+                        WrapCall(() => contentParser.ParseContent(hypertext, shouldParseContent), url);
 
                     foreach (DataType obj in parsedObjects)
                     {
@@ -101,10 +105,9 @@ namespace Reusable.WebAccess
             }
         }
 
-        private async Task CollectContentRecursivelyAsync(
-            Uri url,
-            IEnumerable<(IHyperlinksParser, IEnumerable<string>)> hops,
-            List<(Uri, string)> contents)
+        private async Task CollectContentRecursivelyAsync(Uri url,
+                                                          IEnumerable<HyperlinksParserPackage> hops,
+                                                          List<(Uri, string)> contents)
         {
             string hypertext = await _hypertextFetcher.DownloadFrom(url);
 
@@ -115,9 +118,9 @@ namespace Reusable.WebAccess
                 return;
             }
 
-            (IHyperlinksParser linksParser, IEnumerable<string> keywords) = hops.First();
+            HyperlinksParserPackage hyperlinksParserPackage = hops.First();
             IEnumerable<Uri> hyperlinks =
-                WrapCall(() => linksParser.ParseHyperlinks(hypertext, keywords), url);
+                WrapCall(() => hyperlinksParserPackage.Parse(hypertext), url);
 
             var nextHops = hops.Skip(1);
             var recursiveCalls = new Task[hyperlinks.Count()];

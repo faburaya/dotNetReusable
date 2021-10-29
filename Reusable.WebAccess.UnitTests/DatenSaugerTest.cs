@@ -33,8 +33,9 @@ namespace Reusable.WebAccess.UnitTests
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
                     website.url,
-                    new (IHyperlinksParser, IEnumerable<string>)[0],
-                    contentParserMock.Object
+                    new HyperlinksParserPackage[0],
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 ).Result;
 
             Assert.Equal(actualCollectedData, expectedCollectedData);
@@ -73,7 +74,8 @@ namespace Reusable.WebAccess.UnitTests
                     new[] {
                         CreateHopWith(hyperlinksParserMock, firstWebsite)
                     },
-                    contentParserMock.Object
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 ).Result;
 
             Assert.Equal(actualCollectedData, expectedCollectedData);
@@ -121,7 +123,8 @@ namespace Reusable.WebAccess.UnitTests
                         CreateHopWith(hyperlinkParsersMocks[0], firstWebsite),
                         CreateHopWith(hyperlinkParsersMocks[1], secondWebsite)
                     },
-                    contentParserMock.Object
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 ).Result;
 
             Assert.Equal(actualCollectedData, expectedCollectedData);
@@ -173,7 +176,8 @@ namespace Reusable.WebAccess.UnitTests
                 crawler.CollectDataAsync(
                     firstWebsite.url,
                     new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
-                    contentParserMock.Object
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 ).Result;
 
             Assert.Equal(actualCollectedData, expectedCollectedData);
@@ -224,14 +228,16 @@ namespace Reusable.WebAccess.UnitTests
                 crawler.CollectDataAsync(
                     firstWebsite.url,
                     new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
-                    contentParserMock.Object
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 );
 
             IEnumerable<int> synchronousCollection =
                 crawler.CollectData(
                     firstWebsite.url,
                     new[] { CreateHopWith(hyperlinksParserMock, firstWebsite) },
-                    contentParserMock.Object
+                    contentParserMock.Object,
+                    null // ist dem Mock egal
                 );
 
             var synchronouslyCollectedData = new List<int>();
@@ -276,30 +282,33 @@ namespace Reusable.WebAccess.UnitTests
             {
                 if (website.error == null)
                 {
-                    mock.Setup(obj => obj.ParseContent(website.content)).Returns(website.parsedObjects);
+                    mock.Setup(obj =>
+                        obj.ParseContent(website.content,
+                                         It.IsAny<Func<string, bool>>())
+                    ).Returns(website.parsedObjects);
+
                     expectedCollectedData.AddRange(website.parsedObjects);
                 }
                 else
                 {
-                    mock.Setup(obj => obj.ParseContent(website.content)).Throws(website.error);
+                    mock.Setup(obj =>
+                        obj.ParseContent(website.content,
+                                         It.IsAny<Func<string, bool>>())
+                    ).Throws(website.error);
                 }
             }
             return mock;
         }
 
-        private (IHyperlinksParser, IEnumerable<string>) CreateHopWith(
-            Mock<IHyperlinksParser> mock,
-            FakeHopWebsite website)
+        private HyperlinksParserPackage CreateHopWith(Mock<IHyperlinksParser> mock, FakeHopWebsite website)
         {
-            IEnumerable<string> keywordsForHyperlinks = new string[] { "Schlüssel", "Wörter" };
-
             if (website.error == null)
             {
                 mock.Setup(
                     obj => obj.ParseHyperlinks(
                         website.content,
-                        It.Is<IEnumerable<string>>(keywords =>
-                            keywords.SequenceEqual(keywordsForHyperlinks))
+                        It.IsAny<Func<string, bool>>(),
+                        It.IsAny<Func<string, bool>>()
                     )
                 ).Returns(website.hyperlinks);
             }
@@ -308,12 +317,13 @@ namespace Reusable.WebAccess.UnitTests
                 mock.Setup(
                     obj => obj.ParseHyperlinks(
                         website.content,
-                        It.IsAny<IEnumerable<string>>()
+                        It.IsAny<Func<string, bool>>(),
+                        It.IsAny<Func<string, bool>>()
                     )
                 ).Throws(website.error);
             }
 
-            return (mock.Object, keywordsForHyperlinks);
+            return new HyperlinksParserPackage(mock.Object, null, null);
         }
 
         private List<FakeFinalWebsite> CreateManyFinalWebsites(int count)

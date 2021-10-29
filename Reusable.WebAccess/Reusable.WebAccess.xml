@@ -22,22 +22,24 @@
             <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
             <param name="exceptionHandler">Handler für aufgetretene Ausnahmen von Typ <see cref="T:Reusable.WebAccess.ParserException"/>.</param>
         </member>
-        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataAsync(System.Uri,System.Collections.Generic.IEnumerable{System.ValueTuple{Reusable.WebAccess.IHyperlinksParser,System.Collections.Generic.IEnumerable{System.String}}},Reusable.WebAccess.IHypertextContentParser{`0})">
+        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataAsync(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.HyperlinksParserPackage},Reusable.WebAccess.IHypertextContentParser{`0},System.Func{System.String,System.Boolean})">
             <summary>
             Startet die Datensammlung asynchron.
             </summary>
             <param name="firstUrl">Das URL der ersten Webseite.</param>
-            <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+            <param name="hops">Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Rückrufaktionen.</param>
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+            <param name="shouldParseContent">Diese Rückrufaktion wird dem Aufruf von <paramref name="contentParser"/> weitergegeben, und entscheidet, wann der Inhalt zergliedert wird.</param>
             <returns>Eine asynchrone Aufgabe, die die gesamten gesammelten Daten verspricht.</returns>
         </member>
-        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectData(System.Uri,System.Collections.Generic.IEnumerable{System.ValueTuple{Reusable.WebAccess.IHyperlinksParser,System.Collections.Generic.IEnumerable{System.String}}},Reusable.WebAccess.IHypertextContentParser{`0})">
+        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectData(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.HyperlinksParserPackage},Reusable.WebAccess.IHypertextContentParser{`0},System.Func{System.String,System.Boolean})">
             <summary>
             Führt die Datensammlung durch.
             </summary>
             <param name="firstUrl">Das URL der ersten Webseite.</param>
-            <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Schlüsselwörtern.</param>
+            <param name="hops"> Eine Liste von erwarteten Hops. Jedes Hop besteht in einem injizierten Zerglieder und seinen benötigten Rückrufaktionen.</param>
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+            <param name="shouldParseContent">Diese Rückrufaktion wird dem Aufruf von <paramref name="contentParser"/> weitergegeben, und entscheidet, wann der Inhalt zergliedert wird.</param>
             <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
             <returns>Eine Liste mit den gesammelten Daten.</returns>
         </member>
@@ -49,6 +51,26 @@
             <param name="callback">Die einzuwickelnde Rückrufaktion.</param>
             <param name="url">Gibt den kontext an, falls eine Ausnahme auftritt.</param>
             <returns>Die Rückgabe der Rückrufaktion.</returns>
+        </member>
+        <member name="T:Reusable.WebAccess.HyperlinksParserPackage">
+            <summary>
+            Packt den Zerglieder zusammen mit seinen Filtern ein.
+            </summary>
+        </member>
+        <member name="M:Reusable.WebAccess.HyperlinksParserPackage.#ctor(Reusable.WebAccess.IHyperlinksParser,System.Func{System.String,System.Boolean},System.Func{System.String,System.Boolean})">
+            <summary>
+            Erstellt ein neues Objekt des Typs <see cref="T:Reusable.WebAccess.HyperlinksParserPackage"/>.
+            </summary>
+            <param name="parser">Zerglieder Hyperlinks aus einem Hypertext.</param>
+            <param name="shouldParse">Diese Rückrufaktion wird dem Aufruf des Zerglieders weitergegeben, und etscheidet, wann der Hypertext zergliedert wird.</param>
+            <param name="linkNameFilter">Diese Rückrufaktion wird dem Auruf des Zerglieder weitergegeben, und etscheidet, welche zergliederte Hyperlinks zurückgegeben werden.</param>
+        </member>
+        <member name="M:Reusable.WebAccess.HyperlinksParserPackage.Parse(System.String)">
+            <summary>
+            Ruf den Zerglieder auf.
+            </summary>
+            <param name="hypertext">Der zu zergliedernde Hypertext.</param>
+            <returns>Die zergliederten Hyperlinks.</returns>
         </member>
         <member name="T:Reusable.WebAccess.HypertextFetcher">
             <summary>
@@ -70,12 +92,13 @@
             Schnittstelle für die Zergliederung von Links in Hypertext.
             </summary>
         </member>
-        <member name="M:Reusable.WebAccess.IHyperlinksParser.ParseHyperlinks(System.String,System.Collections.Generic.IEnumerable{System.String})">
+        <member name="M:Reusable.WebAccess.IHyperlinksParser.ParseHyperlinks(System.String,System.Func{System.String,System.Boolean},System.Func{System.String,System.Boolean})">
             <summary>
             Zergliedert bestimmte Links von Hypertext.
             </summary>
             <param name="hypertext">Der gegebene Hypertext.</param>
-            <param name="keywords">Die zu suchenden Schlüsselwörter, welche die Ergebnisse beschränken. Gibt nur die Marken zurück, die mit einem Schlüsselwort übereinstimmen. Der Vergleich unterscheidet nicht zwischen Klein- und Großschreibung. Wenn kein Schlüsselwort gegeben wird, hat dieser Parameter keine Wirkung.</param>
+            <param name="shouldParse">Diese Rückrufaktion wird nur einmal aufgerufen mit dem gesamten Inhalt des Hypertexts und entscheidet, ob der Hypertext überhaupt zergliedert wird.</param>
+            <param name="linkNameFilter">Ein Erbegnisse beschränkender Filter, der für jedes Hyperlinks aufgerufen wird und dessen Namen erhält.</param>
             <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>
         <member name="T:Reusable.WebAccess.IHypertextContentParser`1">
@@ -84,11 +107,12 @@
             </summary>
             <typeparam name="DataType">Der Typ, in dem die zergliederte Daten gespeichert werden sollen.</typeparam>
         </member>
-        <member name="M:Reusable.WebAccess.IHypertextContentParser`1.ParseContent(System.String)">
+        <member name="M:Reusable.WebAccess.IHypertextContentParser`1.ParseContent(System.String,System.Func{System.String,System.Boolean})">
             <summary>
             Zergliedert den gegebenen Hypertext.
             </summary>
             <param name="hypertext">Der zu zergliedernde Hypertext.</param>
+            <param name="shouldParse">Diese Rückrufaktion wird nur einmal aufgerufen mit dem gesamten Inhalt des Hypertexts und entscheidet, ob der Hypertext überhaupt zergliedert wird.</param>
             <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
             <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>

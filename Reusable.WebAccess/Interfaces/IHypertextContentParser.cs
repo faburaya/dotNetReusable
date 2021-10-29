@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Reusable.WebAccess
 {
@@ -12,8 +13,9 @@ namespace Reusable.WebAccess
         /// Zergliedert den gegebenen Hypertext.
         /// </summary>
         /// <param name="hypertext">Der zu zergliedernde Hypertext.</param>
+        /// <param name="shouldParse">Diese Rückrufaktion wird nur einmal aufgerufen mit dem gesamten Inhalt des Hypertexts und entscheidet, ob der Hypertext überhaupt zergliedert wird.</param>
         /// <returns>Die aus den erfassten Daten erstellten Objekte.</returns>
         /// <exception cref="ParserException">Dieser Typ darf speziell behandelt werden.</exception>
-        public IEnumerable<DataType> ParseContent(string hypertext);
+        public IEnumerable<DataType> ParseContent(string hypertext, Func<string, bool> shouldParse);
     }
 }
