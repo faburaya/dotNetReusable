@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.Utils</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.Utils.With`1">
+            <summary>
+            Gewährt einfache Implementierungen für übliche Aufgaben.
+            </summary>
+            <typeparam name="DataType">Der Datentyp zu nutzen.</typeparam>
+        </member>
+        <member name="T:Reusable.Utils.With`1.CreateObject">
+            <summary>
+            Signatur für eine Rückrufaktion, die für die Erstellung eines Objektes zuständig ist.
+            </summary>
+            <returns>Ein neu erstelltes Objekt.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateArrayOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
+            <summary>
+            Erstellt ein Array von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
+            <returns>Ein Array mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateListOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
+            <summary>
+            Erstellt eine Liste von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
+            <returns>Ein Liste mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="T:Reusable.Utils.ILogger">
+            <summary>
+            Emöglicht die Injezierung von unterschiedlichen Protokollanbietern, etwa
+            NLog oder Serilog, die durch eine gemeinsame Schnittstelle benutzt werden können.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Critical(System.String)">
+            <summary>
+            Protokolliert einen kritischen Fehler.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Error(System.String)">
+            <summary>
+            Protokolliert einen Fehler.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Warning(System.String)">
+            <summary>
+            Protokolliert eine Warnung.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Info(System.String)">
+            <summary>
+            Protokolliert zusätzliche Information.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Debug(System.String)">
+            <summary>
+            Protokolliert eine Nachricht zum Debuggen.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="M:Reusable.Utils.ILogger.Trace(System.String)">
+            <summary>
+            Protokolliert eine Nachricht, um den Lauf des Programms zu verfolgen.
+            </summary>
+            <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="T:Reusable.Utils.PasswordBasedCredential">
+            <summary>
+            Enthält eine auf Kennwort basierte Anmeldeinformation.
+            </summary>
+        </member>
+        <member name="P:Reusable.Utils.PasswordBasedCredential.UserId">
+            <summary>
+            Die Benutzerkennung.
+            </summary>
+        </member>
+        <member name="P:Reusable.Utils.PasswordBasedCredential.Password">
+            <summary>
+            Das Kennwort.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.PasswordBasedCredential.Equals(Reusable.Utils.PasswordBasedCredential)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.Utils.RetryStrategy">
+            <summary>
+            Gewährt eine Strategie für Wiederholungen von gescheiterten Operationen.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.RetryStrategy.CalculateExponentialBackoff(System.TimeSpan,System.UInt32)">
+            <summary>
+            Rechnet die Wartezeit für die Wiederholung einer Operation.
+            </summary>
+            <param name="timeSlot">Die minimale Wartezeit.</param>
+            <param name="attempt">Die bisherige Anzahl von Wiederholungen.</param>
+            <returns>Die gerechnete Wartezeit.</returns>
+        </member>
+        <member name="T:Reusable.Utils.SecretLoader">
+            <summary>
+            Lädt geheime Daten, die außerhalb der appsettings.json bleiben sollen.
+            (Zum Beispiel, die Verbindungszeichenkette der Datenbank.)
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SecretLoader.#ctor(Reusable.Utils.XmlMetadata)">
+            <summary>
+            Lädt die Datenquelle mit den Geheimnissen.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SecretLoader.GetConnectionString(System.String)">
+            <summary>
+            Bietet eine Verbindugszeichenkette.
+            </summary>
+            <param name="name">Der Name der gewünschten Verbindung.</param>
+            <returns>
+            Der geheime Teil der Verbindungszeichenkette, wenn es vorhanden ist.
+            (Zum Beispiel: "Server;Database;User ID;Password;")
+            </returns>
+        </member>
+        <member name="M:Reusable.Utils.SecretLoader.GetCredential(System.String)">
+            <summary>
+            Bietet Anmeldeinformationen.
+            </summary>
+            <param name="name">Der Name der Anmeldung.</param>
+            <returns>Die Anmeldeinformationen: Benutzer und Kennwort.</returns>
+        </member>
+        <member name="T:Reusable.Utils.TaskQueue">
+            <summary>
+            Hält eine Sammlung von Aufgaben.
+            Wenn es zu viele laufende Aufgaben gibt, diese Implementierung
+            blockiert, bis eine Aufgabe zum Ende kommt, bevor eine andere
+            hinzugefügt werden kann.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.TaskQueue.#ctor(System.UInt16)">
+            <summary>
+            Erstellt eine neue Instanz von <see cref="T:Reusable.Utils.TaskQueue"/>.
+            </summary>
+            <param name="maxParallelTasks">Legt die maximale Anzahl von parallel läufenden Aufgaben.</param>
+        </member>
+        <member name="M:Reusable.Utils.TaskQueue.Add(System.Threading.Tasks.Task)">
+            <summary>
+            Fügt der Warteschlange eine neue Aufgabe hinzu.
+            </summary>
+            <param name="task">Die hinzufügende Aufgabe.</param>
+        </member>
+        <member name="M:Reusable.Utils.TaskQueue.WaitAll">
+            <summary>
+            Wartet auf den Abschluss von allen Aufgaben in der Warteschlange.
+            </summary>
+        </member>
+        <member name="T:Reusable.Utils.UidGenerator`1">
+            <summary>
+            Grundlegende Implementierung für die Erstellung von einzigartigen Identificakationen.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.UidGenerator`1.GenerateIdFor(`0)">
+            <summary>
+            Erstellt eine einzigartige Identifikation für ein gegebenes Objekt.
+            </summary>
+            <param name="obj">Das gegebene Objekt.</param>
+            <returns>Eine Identifikation.</returns>
+            <remarks>Die Identifikation ist nie dieselbe, auch wenn das Objekt dasselbe ist.</remarks>
+        </member>
+        <member name="T:Reusable.Utils.XmlMetadata">
+            <summary>
+            Metadaten über die zu ladende XML-Datei.
+            </summary>
+        </member>
+        <member name="P:Reusable.Utils.XmlMetadata.XmlNamespace">
+            <summary>
+            Namespace, wo in der XML-Datei die Namen deklariert werden.
+            </summary>
+        </member>
+        <member name="P:Reusable.Utils.XmlMetadata.FilePath">
+            <summary>
+            Pfad der XML-Datei.
+            </summary>
+        </member>
+        <member name="P:Reusable.Utils.XmlMetadata.SchemaFilePath">
+            <summary>
+            Pfad der XSD-Datei.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.XmlMetadata.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Erstellt eine neue Instanz von <see cref="T:Reusable.Utils.XmlMetadata"/>.
+            </summary>
+            <param name="xmlns">Das Namespace.</param>
+            <param name="filePath">Das Pfad der XML-Datei.</param>
+            <param name="schemaFilePath">Das Pfad der XSD-Datei.</param>
+        </member>
+    </members>
+</doc>

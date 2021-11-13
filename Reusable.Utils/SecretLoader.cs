@@ -70,7 +70,7 @@ namespace Reusable.Utils
         /// Bietet Anmeldeinformationen.
         /// </summary>
         /// <param name="name">Der Name der Anmeldung.</param>
-        /// <returns>Die Anmeldeinformationen: Benutzer & Kennwort.</returns>
+        /// <returns>Die Anmeldeinformationen: Benutzer und Kennwort.</returns>
         public PasswordBasedCredential GetCredential(string name)
         {
             if (_credentialsByName.TryGetValue(name, out PasswordBasedCredential credential))

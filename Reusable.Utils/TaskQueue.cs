@@ -16,12 +16,20 @@ namespace Reusable.Utils
 
         private readonly Queue<Task> _tasks;
 
+        /// <summary>
+        /// Erstellt eine neue Instanz von <see cref="TaskQueue"/>.
+        /// </summary>
+        /// <param name="maxParallelTasks">Legt die maximale Anzahl von parallel läufenden Aufgaben.</param>
         public TaskQueue(ushort maxParallelTasks)
         {
             _maxParallelTasks = maxParallelTasks;
             _tasks = new Queue<Task>();
         }
 
+        /// <summary>
+        /// Fügt der Warteschlange eine neue Aufgabe hinzu.
+        /// </summary>
+        /// <param name="task">Die hinzufügende Aufgabe.</param>
         public void Add(Task task)
         {
             lock (this)
@@ -48,6 +56,9 @@ namespace Reusable.Utils
             }
         }
 
+        /// <summary>
+        /// Wartet auf den Abschluss von allen Aufgaben in der Warteschlange.
+        /// </summary>
         public void WaitAll()
         {
             while (true)
