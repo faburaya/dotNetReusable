@@ -4,6 +4,29 @@
         <name>Reusable.Utils</name>
     </assembly>
     <members>
+        <member name="T:Reusable.Utils.ConsoleLogger">
+            <summary>
+            Bietet Protokollierung, die auf die Konsole schreibt.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Critical(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Error(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Warning(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Info(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Debug(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.ConsoleLogger.Trace(System.String)">
+            <inheritdoc/>
+        </member>
         <member name="T:Reusable.Utils.With`1">
             <summary>
             Gewährt einfache Implementierungen für übliche Aufgaben.
