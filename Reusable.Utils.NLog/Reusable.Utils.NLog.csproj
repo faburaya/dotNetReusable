@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="3.2.2" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="4.0.0" />
     <PackageReference Include="NLog" Version="4.7.12" />
   </ItemGroup>
 
