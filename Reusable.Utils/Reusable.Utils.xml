@@ -4,57 +4,6 @@
         <name>Reusable.Utils</name>
     </assembly>
     <members>
-        <member name="T:Reusable.Utils.ConsoleLogger">
-            <summary>
-            Bietet Protokollierung, die auf die Konsole schreibt.
-            </summary>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Critical(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Error(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Warning(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Info(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Debug(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="M:Reusable.Utils.ConsoleLogger.Trace(System.String)">
-            <inheritdoc/>
-        </member>
-        <member name="T:Reusable.Utils.With`1">
-            <summary>
-            Gewährt einfache Implementierungen für übliche Aufgaben.
-            </summary>
-            <typeparam name="DataType">Der Datentyp zu nutzen.</typeparam>
-        </member>
-        <member name="T:Reusable.Utils.With`1.CreateObject">
-            <summary>
-            Signatur für eine Rückrufaktion, die für die Erstellung eines Objektes zuständig ist.
-            </summary>
-            <returns>Ein neu erstelltes Objekt.</returns>
-        </member>
-        <member name="M:Reusable.Utils.With`1.CreateArrayOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
-            <summary>
-            Erstellt ein Array von Objekten des vorgegebenen Typs.
-            </summary>
-            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
-            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
-            <returns>Ein Array mit <paramref name="count"/> Objekten.</returns>
-        </member>
-        <member name="M:Reusable.Utils.With`1.CreateListOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
-            <summary>
-            Erstellt eine Liste von Objekten des vorgegebenen Typs.
-            </summary>
-            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
-            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
-            <returns>Ein Liste mit <paramref name="count"/> Objekten.</returns>
-        </member>
         <member name="T:Reusable.Utils.ILogger">
             <summary>
             Emöglicht die Injezierung von unterschiedlichen Protokollanbietern, etwa
@@ -96,6 +45,65 @@
             Protokolliert eine Nachricht, um den Lauf des Programms zu verfolgen.
             </summary>
             <param name="message">Die Nachricht.</param>
+        </member>
+        <member name="T:Reusable.Utils.With`1">
+            <summary>
+            Gewährt einfache Implementierungen für übliche Aufgaben.
+            </summary>
+            <typeparam name="DataType">Der Datentyp zu nutzen.</typeparam>
+        </member>
+        <member name="T:Reusable.Utils.With`1.CreateObject">
+            <summary>
+            Signatur für eine Rückrufaktion, die für die Erstellung eines Objektes zuständig ist.
+            </summary>
+            <returns>Ein neu erstelltes Objekt.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateArrayOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
+            <summary>
+            Erstellt ein Array von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
+            <returns>Ein Array mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateListOf(System.Int32,Reusable.Utils.With{`0}.CreateObject)">
+            <summary>
+            Erstellt eine Liste von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte.</param>
+            <returns>Ein Liste mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="T:Reusable.Utils.With`1.CreateObjectAt">
+            <summary>
+            Signatur für eine Rückrufaktion, die für die Erstellung eines Objektes zuständig ist.
+            </summary>
+            <param name="index">Der Index des Objekts, das in einer Reihe steht.</param>
+            <returns>Ein neu esrtelltes Objekt.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateArrayOf(System.Int32,Reusable.Utils.With{`0}.CreateObjectAt)">
+            <summary>
+            Erstellt ein Array von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte, wobei der Index jedes Objektes übergeben wird.</param>
+            <returns>Ein Array mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.CreateListOf(System.Int32,Reusable.Utils.With{`0}.CreateObjectAt)">
+            <summary>
+            Erstellt eine Liste von Objekten des vorgegebenen Typs.
+            </summary>
+            <param name="count">Wie viele Objekte erstellt werden müssen.</param>
+            <param name="callback">Die Rückrufaktion für die Erstellung der Objekte, wobei der Index jedes Objektes übergeben wird.</param>
+            <returns>Ein Liste mit <paramref name="count"/> Objekten.</returns>
+        </member>
+        <member name="M:Reusable.Utils.With`1.ConcatenateViewOf(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{`0}})">
+            <summary>
+            Schafft eine einzige Ansicht durch die Zusammensetzung von verschiedenen Sammlungen,
+            ohne dass deren Inhalt kopiert werden muss.
+            </summary>
+            <param name="collections">Die viele zusammenzusetzenden Sammlungen.</param>
+            <returns>Eine Ansicht, die alle Elemente aller Sammlungen zusammenfasst.</returns>
         </member>
         <member name="T:Reusable.Utils.PasswordBasedCredential">
             <summary>
@@ -155,6 +163,61 @@
             </summary>
             <param name="name">Der Name der Anmeldung.</param>
             <returns>Die Anmeldeinformationen: Benutzer und Kennwort.</returns>
+        </member>
+        <member name="T:Reusable.Utils.SimpleConsoleLogger">
+            <summary>
+            Bietet einfache Protokollierung, die auf die Konsole schreibt.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SimpleConsoleLogger.WriteLine(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.Utils.SimpleFileLogger">
+            <summary>
+            Bietet einfache Protokollierung, die auf eine Datei geschrieben wird.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SimpleFileLogger.#ctor(System.String)">
+            <summary>
+            Erstellt eine neue Instanz von <see cref="T:Reusable.Utils.SimpleFileLogger"/>.
+            </summary>
+            <param name="logFilePath">Das Pfad der Datei, auf die protokolliert wird.</param>
+        </member>
+        <member name="M:Reusable.Utils.SimpleFileLogger.WriteLine(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleFileLogger.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.Utils.SimpleLoggerBase">
+            <summary>
+            Eine sehr einfache Implementierung für Protokollierung.
+            Sie kann für Tests nützlich sein.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.WriteLine(System.String)">
+            <summary>
+            Die Überschreibung dieser Methode bestimmt, wie das zu protokollierende Ereignis geschrieben wird.
+            </summary>
+            <param name="text">Der zu schreibende Text.</param>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Critical(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Error(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Warning(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Info(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Debug(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SimpleLoggerBase.Trace(System.String)">
+            <inheritdoc/>
         </member>
         <member name="T:Reusable.Utils.TaskQueue">
             <summary>
