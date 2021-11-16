@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,18 +18,17 @@ namespace Reusable.WebAccess
     {
         private readonly IHypertextFetcher _hypertextFetcher;
 
-        private readonly Action<ParserException> _exceptionHandler;
+        private readonly Utils.ILogger _log;
 
         /// <summary>
         /// Erstellt eine neue Instanz.
         /// </summary>
         /// <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
-        /// <param name="exceptionHandler">Handler für aufgetretene Ausnahmen von Typ <see cref="ParserException"/>.</param>
-        public DatenSauger(IHypertextFetcher hypertextFetcher,
-                           Action<ParserException> exceptionHandler = null)
+        /// <param name="log">Injizierter Dienst für Protokollierung.</param>
+        public DatenSauger(IHypertextFetcher hypertextFetcher, Utils.ILogger log = null)
         {
             _hypertextFetcher = hypertextFetcher;
-            _exceptionHandler = exceptionHandler;
+            _log = log;
         }
 
         /// <summary>
@@ -51,9 +49,12 @@ namespace Reusable.WebAccess
             var collectedData = new List<DataType>();
             foreach ((Uri url, string hypertext) in contents)
             {
-                collectedData.AddRange(
-                    WrapCall(() => contentParser.ParseContent(hypertext), url)
-                );
+                IEnumerable<DataType> parsedObjects =
+                    WrapCall(() => contentParser.ParseContent(hypertext), url);
+
+                collectedData.AddRange(parsedObjects);
+
+                _log?.Info($"Die Zergliederung von {url} hat {parsedObjects.Count()} ergeben.");
             }
 
             return collectedData;
@@ -96,6 +97,8 @@ namespace Reusable.WebAccess
                         yield return obj;
                     }
 
+                    _log?.Info($"Die Zergliederung von {url} hat {parsedObjects.Count()} ergeben.");
+
                     ++taken;
                 } 
             }
@@ -105,18 +108,24 @@ namespace Reusable.WebAccess
                                                           IEnumerable<IHyperlinksParser> hops,
                                                           List<(Uri, string)> contents)
         {
+            _log?.Debug($"Ladet {url} herunter...");
+
             string hypertext = await _hypertextFetcher.DownloadFrom(url);
 
             if (hops.Count() == 0)
             {
                 lock (contents)
                     contents.Add((url, hypertext));
+
+                _log?.Debug($"Letztes Hop erreicht: {url} ist heruntergeladen.");
                 return;
             }
 
             IHyperlinksParser hyperlinksParser = hops.First();
             IEnumerable<Uri> hyperlinks =
                 WrapCall(() => hyperlinksParser.ParseHyperlinks(hypertext), url);
+
+            _log?.Info($"{hyperlinks.Count()} Hyperlinks wurden durch {url} ergeben.");
 
             var nextHops = hops.Skip(1);
             var recursiveCalls = new Task[hyperlinks.Count()];
@@ -144,18 +153,12 @@ namespace Reusable.WebAccess
                 var wrappedException = new ParserException(
                     $"Die Zergliederung einer Internetseite ist nicht gelungen. ({url})", exception);
 
-                if (_exceptionHandler != null)
-                {
-                    _exceptionHandler(wrappedException);
-                }
-                else
-                {
-                    Trace.WriteLine(wrappedException);
-                }
+                _log?.Error($"Fehler ist aufgetreten: {wrappedException}");
             }
 
             try
             {
+                _log?.Debug($"Startet die Zergliederung von {url}");
                 return callback();
             }
             catch (ParserException exception)

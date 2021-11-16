@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,13 +7,30 @@ using System.Collections.Generic;
 
 using Moq;
 using Xunit;
-
 using Reusable.Utils;
 
 namespace Reusable.WebAccess.UnitTests
 {
-    public class DatenSaugerTest
+    public class DatenSaugerTest : IDisposable
     {
+        private const string _logFilePath = "DatenSaugerTest.log.txt";
+
+        private readonly SimpleFileLogger _log = new SimpleFileLogger(_logFilePath);
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _log.Dispose();
+            File.Delete(_logFilePath);
+
+            _disposed = true;
+            GC.SuppressFinalize(this);
+        }
+
         [Fact]
         public void CollectData_WhenNoHops_ThenJustParseContent()
         {
@@ -29,7 +47,7 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(new[] { website }, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger ohne Hops:
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object, _log);
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
                     website.url,
@@ -65,7 +83,7 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(new[] { finalWebsite }, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit einem einzigen Hop:
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object, _log);
             Mock<IHyperlinksParser> hyperlinksParserMock = CreateMockForHop(firstWebsite);
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
@@ -108,7 +126,7 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(new[] { finalWebsite }, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit zwei Hops:
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object);
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object, _log);
             Mock<IHyperlinksParser>[] hyperlinkParsersMocks = new[] {
                 CreateMockForHop(firstWebsite),
                 CreateMockForHop(secondWebsite)
@@ -137,15 +155,15 @@ namespace Reusable.WebAccess.UnitTests
         [InlineData(300, false)]
         public void CollectData_WhenMultipleLinks_ThenParseContentFromAll(int websiteCount, bool withFailures)
         {
-            ParserException expectedParserError = null;
             List<FakeFinalWebsite> finalWebsites = CreateManyFinalWebsites(websiteCount);
             
             if (withFailures)
             {
-                expectedParserError = new ParserException("Ruhig: vorgetäuschter Fehler :-)");
-                finalWebsites.Add(new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
-                                                       "Hier steht fehlerhaftes HTML.",
-                                                       expectedParserError));
+                finalWebsites.Add(
+                    new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
+                                         "Hier steht fehlerhaftes HTML.",
+                                         new ParserException("Ruhig: vorgetäuschter Fehler :-)"))
+                );
             }
 
             var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
@@ -162,10 +180,8 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(finalWebsites, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit einem einzigen Hop:
-            ParserException actualParserException = null;
             Mock<IHyperlinksParser> hyperlinksParserMock = CreateMockForHop(firstWebsite);
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object,
-                (ParserException ex) => { actualParserException = ex; });
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object, _log);
             IEnumerable<int> actualCollectedData =
                 crawler.CollectDataAsync(
                     firstWebsite.url,
@@ -178,8 +194,6 @@ namespace Reusable.WebAccess.UnitTests
             contentParserMock.VerifyAll();
             hyperlinksParserMock.VerifyAll();
             hypertextFetcherMock.VerifyAll();
-
-            Assert.Equal(expectedParserError, actualParserException?.InnerException);
         }
 
         [Theory]
@@ -187,15 +201,15 @@ namespace Reusable.WebAccess.UnitTests
         [InlineData(true)]
         public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected(bool withFailures)
         {
-            ParserException expectedParserError = null;
             List<FakeFinalWebsite> finalWebsites = CreateManyFinalWebsites(100);
 
             if (withFailures)
             {
-                expectedParserError = new ParserException("Ruhig: vorgetäuschter Fehler :-)");
-                finalWebsites.Add(new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
-                                                       "Hier steht fehlerhaftes HTML.",
-                                                       expectedParserError));
+                finalWebsites.Add(
+                    new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
+                                         "Hier steht fehlerhaftes HTML.",
+                                         new ParserException("Ruhig: vorgetäuschter Fehler :-)"))
+                );
             }
 
             var firstWebsite = new FakeHopWebsite(new Uri("http://erste-webseite.de"),
@@ -212,11 +226,8 @@ namespace Reusable.WebAccess.UnitTests
                 CreateMockToParseContent(finalWebsites, out List<int> expectedCollectedData);
 
             // Startet den DatenSauger mit einem einzigen Hop:
-            ParserException actualParserException = null;
-            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object,
-                (ParserException ex) => { actualParserException = ex; });
+            var crawler = new DatenSauger<int>(hypertextFetcherMock.Object, _log);
             Mock<IHyperlinksParser> hyperlinksParserMock = CreateMockForHop(firstWebsite);
-
             Task<IEnumerable<int>> asynchronousCollection =
                 crawler.CollectDataAsync(
                     firstWebsite.url,
@@ -242,8 +253,6 @@ namespace Reusable.WebAccess.UnitTests
             contentParserMock.VerifyAll();
             hyperlinksParserMock.VerifyAll();
             hypertextFetcherMock.VerifyAll();
-
-            Assert.Equal(expectedParserError, actualParserException?.InnerException);
         }
 
         private Mock<IHypertextFetcher> CreateMockToFetchHypertext(IEnumerable<(Uri, string)> urlsWithContent)

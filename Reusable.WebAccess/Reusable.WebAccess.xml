@@ -15,12 +15,12 @@
             </remarks>
             <typeparam name="DataType">Der Typ für die Daten, die am Ende gesammelt werden.</typeparam>
         </member>
-        <member name="M:Reusable.WebAccess.DatenSauger`1.#ctor(Reusable.WebAccess.IHypertextFetcher,System.Action{Reusable.WebAccess.ParserException})">
+        <member name="M:Reusable.WebAccess.DatenSauger`1.#ctor(Reusable.WebAccess.IHypertextFetcher,Reusable.Utils.ILogger)">
             <summary>
             Erstellt eine neue Instanz.
             </summary>
             <param name="hypertextFetcher">Injizierte Implementierung für die Abrufung von Hypertext.</param>
-            <param name="exceptionHandler">Handler für aufgetretene Ausnahmen von Typ <see cref="T:Reusable.WebAccess.ParserException"/>.</param>
+            <param name="log">Injizierter Dienst für Protokollierung.</param>
         </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataAsync(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.IHyperlinksParser},Reusable.WebAccess.IHypertextContentParser{`0})">
             <summary>
