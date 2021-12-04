@@ -24,19 +24,15 @@ namespace Reusable.WebAccess
             timeSlotForRetry = new TimeSpan((long)(100 /*ms*/ * 1e4 /*ticks per ms*/));
         }
 
-        private readonly uint _maxRetries;
-
-        private TaskQueue _parallelRequests;
+        private readonly ushort _maxRetries;
 
         /// <summary>
         /// Ertellt eine neue Instanz von <see cref="HypertextFetcher"/>.
         /// </summary>
         /// <param name="maxRetries">Legt fest, wievielmal das Herunterladen zu versuchen ist.</param>
-        /// <param name="maxParallelWebRequests">Legt fest, wie viele parallel laufen dürfen.</param>
-        public HypertextFetcher(uint maxRetries = 5, ushort maxParallelWebRequests = 50)
+        public HypertextFetcher(ushort maxRetries = 5)
         {
             _maxRetries = maxRetries;
-            _parallelRequests = new TaskQueue(maxParallelWebRequests);
         }
 
         /// <inheritdoc/>
@@ -48,7 +44,6 @@ namespace Reusable.WebAccess
                 try
                 {
                     var request = httpClient.GetStringAsync(url);
-                    _parallelRequests.Add(request);
                     return await request;
                 }
                 catch (HttpRequestException ex) when (ex.Message.Contains(/*HTTP Fehler*/" 403 "))

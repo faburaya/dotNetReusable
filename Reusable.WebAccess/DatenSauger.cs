@@ -84,7 +84,7 @@ namespace Reusable.WebAccess
                 lock (contents)
                 {
                     downloading = !contentDownloadTask.IsCompleted;
-                    availableContent = contents.Skip(taken).Take(contents.Count - taken);
+                    availableContent = contents.Skip(taken);
                 }
 
                 foreach ((Uri url, string hypertext) in availableContent)
