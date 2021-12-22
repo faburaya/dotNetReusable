@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>com.faburaya.Reusable.Utils</PackageId>
-    <Version>4.0.0</Version>
+    <Version>5.0.1</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.Utils</Product>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
