@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="4.0.0" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="5.0.1" />
   </ItemGroup>
 
 </Project>
