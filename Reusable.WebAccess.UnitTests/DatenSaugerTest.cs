@@ -196,14 +196,20 @@ namespace Reusable.WebAccess.UnitTests
             hypertextFetcherMock.VerifyAll();
         }
 
+        public enum SimulationOptions { WithFailures, NoFailures }
+
+        public enum SpeedOptions { WithParallelWebRequests, SlowlyNoParallelWebRequests }
+
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected(bool withFailures)
+        [InlineData(SimulationOptions.NoFailures, SpeedOptions.WithParallelWebRequests)]
+        [InlineData(SimulationOptions.NoFailures, SpeedOptions.SlowlyNoParallelWebRequests)]
+        [InlineData(SimulationOptions.WithFailures, SpeedOptions.WithParallelWebRequests)]
+        [InlineData(SimulationOptions.WithFailures, SpeedOptions.SlowlyNoParallelWebRequests)]
+        public void CollectData_WhenMultipleLinks_IfSynchronous_ThenEnsureThatSameDataIsCollected(SimulationOptions simulation, SpeedOptions speed)
         {
             List<FakeFinalWebsite> finalWebsites = CreateManyFinalWebsites(100);
 
-            if (withFailures)
+            if (simulation == SimulationOptions.WithFailures)
             {
                 finalWebsites.Add(
                     new FakeFinalWebsite(new Uri("http://beschädigte-webseite.de"),
@@ -235,12 +241,20 @@ namespace Reusable.WebAccess.UnitTests
                     contentParserMock.Object
                 );
 
-            IEnumerable<int> synchronousCollection =
-                crawler.CollectData(
-                    firstWebsite.url,
-                    new[] { hyperlinksParserMock.Object },
-                    contentParserMock.Object
-                );
+            IEnumerable<int> synchronousCollection = speed switch
+            {
+                SpeedOptions.WithParallelWebRequests =>
+                    crawler.CollectData(firstWebsite.url,
+                                        new[] { hyperlinksParserMock.Object },
+                                        contentParserMock.Object),
+
+                SpeedOptions.SlowlyNoParallelWebRequests =>
+                    crawler.CollectDataSlowly(firstWebsite.url,
+                                              new[] { hyperlinksParserMock.Object },
+                                              contentParserMock.Object),
+
+                _ => throw new NotSupportedException(),
+            };
 
             var synchronouslyCollectedData = new List<int>();
             foreach (int parsedObject in synchronousCollection)

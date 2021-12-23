@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ namespace Reusable.WebAccess
             IEnumerable<IHyperlinksParser> hops,
             IHypertextContentParser<DataType> contentParser)
         {
-            var contents = new List<(Uri, string)>(capacity: hops.Count());
+            var contents = new ConcurrentQueue<(Uri, string)>();
             await CollectContentRecursivelyAsync(firstUrl, hops, contents);
 
             var collectedData = new List<DataType>();
@@ -73,40 +74,99 @@ namespace Reusable.WebAccess
             IEnumerable<IHyperlinksParser> hops,
             IHypertextContentParser<DataType> contentParser)
         {
-            var contents = new List<(Uri, string)>(capacity: hops.Count());
+            var contents = new ConcurrentQueue<(Uri, string)>();
             Task contentDownloadTask = CollectContentRecursivelyAsync(firstUrl, hops, contents);
 
-            IEnumerable<(Uri, string)> availableContent;
-            int taken = 0;
             bool downloading = true;
             while (downloading)
             {
-                lock (contents)
-                {
-                    downloading = !contentDownloadTask.IsCompleted;
-                    availableContent = contents.Skip(taken);
-                }
+                downloading = !contentDownloadTask.IsCompleted;
 
-                foreach ((Uri url, string hypertext) in availableContent)
+                while (contents.TryDequeue(out (Uri url, string hypertext) content))
                 {
                     IEnumerable<DataType> parsedObjects =
-                        WrapCall(() => contentParser.ParseContent(hypertext), url);
+                        WrapCall(() => contentParser.ParseContent(content.hypertext), content.url);
 
                     foreach (DataType obj in parsedObjects)
                     {
                         yield return obj;
                     }
 
-                    _log?.Info($"Die Zergliederung von {url} hat {parsedObjects.Count()} ergeben.");
-
-                    ++taken;
+                    _log?.Info($"Die Zergliederung von {content.url} hat {parsedObjects.Count()} ergeben.");
                 } 
+            }
+        }
+
+        /// <summary>
+        /// Führt die Datensammlung langsam durch,
+        /// damit eine Webseite nicht überfordert wird.
+        /// </summary>
+        /// <param name="firstUrl">Das URL der ersten Webseite.</param>
+        /// <param name="hops"> Eine Liste von Zergliedern für jedes erwartetes Hop.</param>
+        /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+        /// <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
+        /// <returns>Eine Liste mit den gesammelten Daten.</returns>
+        public IEnumerable<DataType> CollectDataSlowly(
+            Uri firstUrl,
+            IEnumerable<IHyperlinksParser> hops,
+            IHypertextContentParser<DataType> contentParser)
+        {
+            var contents = new ConcurrentQueue<(Uri, string)>();
+            Task contentDownloadTask = Task.Run(
+                () => CollectContentRecursivelySlowly(firstUrl, hops, contents));
+
+            bool downloading = true;
+            while (downloading)
+            {
+                downloading = !contentDownloadTask.IsCompleted;
+
+                while (contents.TryDequeue(out (Uri url, string hypertext) content))
+                {
+                    IEnumerable<DataType> parsedObjects =
+                        WrapCall(() => contentParser.ParseContent(content.hypertext), content.url);
+
+                    foreach (DataType obj in parsedObjects)
+                    {
+                        yield return obj;
+                    }
+
+                    _log?.Info($"Die Zergliederung von {content.url} hat {parsedObjects.Count()} ergeben.");
+                }
+            }
+        }
+
+        private void CollectContentRecursivelySlowly(Uri url,
+                                                     IEnumerable<IHyperlinksParser> hops,
+                                                     ConcurrentQueue<(Uri, string)> contents)
+        {
+            _log?.Debug($"Ladet {url} herunter...");
+
+            string hypertext = _hypertextFetcher.DownloadFrom(url).Result;
+
+            if (hops.Count() == 0)
+            {
+                contents.Enqueue((url, hypertext));
+                _log?.Debug($"Letztes Hop erreicht: {url} ist heruntergeladen.");
+                return;
+            }
+
+            IHyperlinksParser hyperlinksParser = hops.First();
+            IEnumerable<Uri> hyperlinks =
+                WrapCall(() => hyperlinksParser.ParseHyperlinks(hypertext), url);
+
+            _log?.Info($"{hyperlinks.Count()} Hyperlinks wurden durch {url} ergeben.");
+
+            var nextHops = hops.Skip(1);
+
+            foreach (Uri linkAddress in hyperlinks)
+            {
+                CollectContentRecursivelySlowly(linkAddress, nextHops, contents);
             }
         }
 
         private async Task CollectContentRecursivelyAsync(Uri url,
                                                           IEnumerable<IHyperlinksParser> hops,
-                                                          List<(Uri, string)> contents)
+                                                          ConcurrentQueue<(Uri, string)> contents)
         {
             _log?.Debug($"Ladet {url} herunter...");
 
@@ -114,9 +174,7 @@ namespace Reusable.WebAccess
 
             if (hops.Count() == 0)
             {
-                lock (contents)
-                    contents.Add((url, hypertext));
-
+                contents.Enqueue((url, hypertext));
                 _log?.Debug($"Letztes Hop erreicht: {url} ist heruntergeladen.");
                 return;
             }
