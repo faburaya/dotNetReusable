@@ -41,6 +41,17 @@
             <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
             <returns>Eine Liste mit den gesammelten Daten.</returns>
         </member>
+        <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataSlowly(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.IHyperlinksParser},Reusable.WebAccess.IHypertextContentParser{`0})">
+            <summary>
+            Führt die Datensammlung langsam durch,
+            damit eine Webseite nicht überfordert wird.
+            </summary>
+            <param name="firstUrl">Das URL der ersten Webseite.</param>
+            <param name="hops"> Eine Liste von Zergliedern für jedes erwartetes Hop.</param>
+            <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
+            <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
+            <returns>Eine Liste mit den gesammelten Daten.</returns>
+        </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.WrapCall``1(System.Func{System.Collections.Generic.IEnumerable{``0}},System.Uri)">
             <summary>
             Wickelt den Ruf einer Rückrufaktion ein, sodass eine eventuelle Ausnahme angemessen behandelt wird, ohne dass der Anrufer gestört wird.
@@ -55,12 +66,11 @@
             Gewährt die Fähigkeit zum Abrufen des Hypertext aus einer Webseite.
             </summary>
         </member>
-        <member name="M:Reusable.WebAccess.HypertextFetcher.#ctor(System.UInt32,System.UInt16)">
+        <member name="M:Reusable.WebAccess.HypertextFetcher.#ctor(System.UInt16)">
             <summary>
             Ertellt eine neue Instanz von <see cref="T:Reusable.WebAccess.HypertextFetcher"/>.
             </summary>
             <param name="maxRetries">Legt fest, wievielmal das Herunterladen zu versuchen ist.</param>
-            <param name="maxParallelWebRequests">Legt fest, wie viele parallel laufen dürfen.</param>
         </member>
         <member name="M:Reusable.WebAccess.HypertextFetcher.DownloadFrom(System.Uri)">
             <inheritdoc/>

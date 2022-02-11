@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.DataAccess.Cosmos</PackageId>
-    <Version>4.0.3</Version>
+    <Version>4.0.4</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.DataAccess.Cosmos</Product>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für den Zugriff Azure Cosmos Datenbank nützlich sind.</Description>
@@ -12,7 +12,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>data access, azure, cosmos</PackageTags>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
-    <Platforms>x64;AnyCPU</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,7 +26,7 @@
     <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="1.4.2" />
     <PackageReference Include="com.faburaya.Reusable.DataModels" Version="2.2.1" />
     <PackageReference Include="com.faburaya.Reusable.Utils" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.23.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.24.0" />
   </ItemGroup>
 
 </Project>

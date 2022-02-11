@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.Utils.NLog</PackageId>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Description>Bietet von NLog unterstützte Implementierungen der Schnittstellen, die eine Plattform für Protokollierung brauchen und sich in Reusable.Utils befinden.</Description>
@@ -10,10 +10,11 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>utils, log, nlog</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\repos\Reusable\Reusable.Utils.NLog\Reusable.Utils.NLog.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.Utils.NLog\Reusable.Utils.NLog.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

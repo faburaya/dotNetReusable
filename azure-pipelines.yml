@@ -39,5 +39,5 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\bin\$(buildConfiguration)\**\Reusable.*Tests.dll'
+    testAssemblyVer2: '**\bin\$(buildConfiguration)\net5.0\Reusable.*Tests.dll'
     codeCoverageEnabled: true

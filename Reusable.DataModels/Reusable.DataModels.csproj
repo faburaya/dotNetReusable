@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <SignAssembly>false</SignAssembly>
-    <Version>2.2.1</Version>
+    <Version>2.2.2</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
@@ -11,13 +11,9 @@
     <PackageTags>data model, azure, cosmos, rdbms, attributes</PackageTags>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenmodellen nützlich sind.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Platforms>x64;AnyCPU</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <PackageId>com.faburaya.Reusable.DataModels</PackageId>
     <Company />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
