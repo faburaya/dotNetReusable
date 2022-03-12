@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.Utils</PackageId>
-    <Version>5.1.1</Version>
+    <Version>6.0.2</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.Utils</Product>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
@@ -13,10 +13,8 @@
     <PackageTags>common, utils, xml, credentials</PackageTags>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die nützlich für allgemeine Zwecke sein können.</Description>
     <Platforms>AnyCPU</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.Utils\Reusable.Utils.xml</DocumentationFile>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

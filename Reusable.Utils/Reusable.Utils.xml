@@ -4,6 +4,36 @@
         <name>Reusable.Utils</name>
     </assembly>
     <members>
+        <member name="T:Reusable.Utils.BinarySearchExtension">
+            <summary>
+            Implementiert eine allgemeine binäre Suche für sortierte Listen.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchLowerBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0})">
+            <summary>
+            Findet in der Liste die untere Grenze ("lower bound"):
+            Das erste Element, das den gegebenen Schlüssel aufweist, wenn es vorhaden ist,
+            andernfalls ist es das unmittelbar nächste Element.
+            </summary>
+            <typeparam name="KeyType">Der Typ des Schlüssels.</typeparam>
+            <typeparam name="DataType">Der Datentyp.</typeparam>
+            <param name="values">Die zu suchende Liste.</param>
+            <param name="key">Der Schlüssel des erwünschten Elements.</param>
+            <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
+            <returns>Der Index der unteren Grenze.</returns>
+        </member>
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchUpperBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0})">
+            <summary>
+            Findet in der Liste die obere Grenze ("upper bound"):
+            Das erste Element, das einen Schlüssel aufweist, das größer als der gegebener Schlüssel ist.
+            </summary>
+            <typeparam name="KeyType">Der Typ des Schlüssels.</typeparam>
+            <typeparam name="DataType">Der Datentyp.</typeparam>
+            <param name="values">Die zu suchende Liste.</param>
+            <param name="key">Der Schlüssel des erwünschten Elements.</param>
+            <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
+            <returns>Der Index der oberen Grenze.</returns>
+        </member>
         <member name="T:Reusable.Utils.ILogger">
             <summary>
             Emöglicht die Injezierung von unterschiedlichen Protokollanbietern, etwa
@@ -218,31 +248,6 @@
         </member>
         <member name="M:Reusable.Utils.SimpleLoggerBase.Trace(System.String)">
             <inheritdoc/>
-        </member>
-        <member name="T:Reusable.Utils.TaskQueue">
-            <summary>
-            Hält eine Sammlung von Aufgaben.
-            Wenn es zu viele laufende Aufgaben gibt, diese Implementierung
-            blockiert, bis eine Aufgabe zum Ende kommt, bevor eine andere
-            hinzugefügt werden kann.
-            </summary>
-        </member>
-        <member name="M:Reusable.Utils.TaskQueue.#ctor(System.UInt16)">
-            <summary>
-            Erstellt eine neue Instanz von <see cref="T:Reusable.Utils.TaskQueue"/>.
-            </summary>
-            <param name="maxParallelTasks">Legt die maximale Anzahl von parallel läufenden Aufgaben.</param>
-        </member>
-        <member name="M:Reusable.Utils.TaskQueue.Add(System.Threading.Tasks.Task)">
-            <summary>
-            Fügt der Warteschlange eine neue Aufgabe hinzu.
-            </summary>
-            <param name="task">Die hinzufügende Aufgabe.</param>
-        </member>
-        <member name="M:Reusable.Utils.TaskQueue.WaitAll">
-            <summary>
-            Wartet auf den Abschluss von allen Aufgaben in der Warteschlange.
-            </summary>
         </member>
         <member name="T:Reusable.Utils.UidGenerator`1">
             <summary>
