@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Reusable.DataAccess.Cosmos
 {
     /// <summary>
-    /// Gewährt Zugang auf ein Element in Azure Cosmos Datenbank.
+    /// Gewährt Zugang auf den Elementtyp <typeparamref name="DataType"/> in Azure Cosmos Datenbank.
     /// </summary>
     public class CosmosDbItemAccess<DataType> : Common.ITableAccess<DataType>
         where DataType : DataModels.CosmosDbItem<DataType>, IEquatable<DataType>
@@ -17,6 +17,11 @@ namespace Reusable.DataAccess.Cosmos
 
         private List<Task> Insertions { get; set; }
 
+        /// <summary>
+        /// Erstellt eine neue Instanz dieser Klasse.
+        /// </summary>
+        /// <param name="dbService">Der Datenbankdienst.</param>
+        /// <param name="maxConcurrentOperations">Anzahl von Vorgängen, die parallel durchgeführt werden dürfen.</param>
         public CosmosDbItemAccess(ICosmosDbService<DataType> dbService, int maxConcurrentOperations = 20)
         {
             this.DatabaseService = dbService;
@@ -24,11 +29,13 @@ namespace Reusable.DataAccess.Cosmos
             _maxAsyncTasks = maxConcurrentOperations;
         }
 
+        /// <inheritdoc/>
         public bool IsEmpty()
         {
             return (DatabaseService.GetItemCountAsync().Result == 0);
         }
 
+        /// <inheritdoc/>
         public void Insert(DataType obj)
         {
             Insertions.Add(DatabaseService.AddItemAsync(obj));
@@ -41,6 +48,7 @@ namespace Reusable.DataAccess.Cosmos
             }
         }
 
+        /// <inheritdoc/>
         public void Commit()
         {
             Task.WaitAll(Insertions.ToArray());

@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.DataAccess.Cosmos</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.DataAccess.Cosmos.CosmosDbItemAccess`1">
+            <summary>
+            Gewährt Zugang auf den Elementtyp <typeparamref name="DataType"/> in Azure Cosmos Datenbank.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbItemAccess`1.#ctor(Reusable.DataAccess.Cosmos.ICosmosDbService{`0},System.Int32)">
+            <summary>
+            Erstellt eine neue Instanz dieser Klasse.
+            </summary>
+            <param name="dbService">Der Datenbankdienst.</param>
+            <param name="maxConcurrentOperations">Anzahl von Vorgängen, die parallel durchgeführt werden dürfen.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbItemAccess`1.IsEmpty">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbItemAccess`1.Insert(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbItemAccess`1.Commit">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.DataAccess.Cosmos.CosmosDbService`1">
+            <summary>
+            Implementierung für einen Diest, der Zugang auf Azure Cosmos Datenbank gewährt.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.InitializeCosmosClientInstanceAsync(System.String,System.String,Reusable.Utils.UidGenerator{`0})">
+            <summary>
+            Gewährleistet, dass die Azure Cosmos Datenbank und Container vorhanden sind,
+            dann initialisiert ein Client für den Datenbankdienst.
+            </summary>
+            <param name="databaseName">Der Name der Datenbank.</param>
+            <param name="connectionString">The Verbindungszeichenfolge für die Datenbank.</param>
+            <param name="idGenerator">Implementierung für die Beschafung einer einzigartigen ID.</param>
+            <returns>Eine erstellte Instanz von <see cref="T:Reusable.DataAccess.Cosmos.CosmosDbService`1"/></returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.InitializeCosmosClientInstanceAsync(System.String,System.String)">
+            <summary>
+            Gewährleistet, dass die Azure Cosmos Datenbank und Container vorhanden sind,
+            dann initialisiert ein Client für den Datenbankdienst.
+            </summary>
+            <param name="databaseName">Der Name der Datenbank.</param>
+            <param name="connectionString">The Verbindungszeichenfolge für die Datenbank.</param>
+            <returns>Eine erstellte Instanz von <see cref="T:Reusable.DataAccess.Cosmos.CosmosDbService`1"/></returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.Dispose(System.Boolean)">
+            <summary>
+            Entsorgt die Ressourcen der Instanz.
+            </summary>
+            <param name="disposing">Ob die Entsorgung ordentlich stattfindet.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.Finalize">
+            <summary>
+            Wird durgeführt, wenn die Instanz nicht ordentlich entsorgt wurde.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.QueryAsync(System.Func{System.Linq.IOrderedQueryable{`0},System.Linq.IQueryable{`0}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.GetItemAsync(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.GetItemCountAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.AddItemAsync(`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.DeleteItemAsync(System.String,System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.DeleteBatchAsync(System.String,System.Collections.Generic.IList{System.String})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.UpsertItemAsync(System.String,`0)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.CosmosDbService`1.UpsertBatchAsync(System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="T:Reusable.DataAccess.Cosmos.ICosmosDbService`1">
+            <summary>
+            Generische Schnittstelle, die Zugang auf die Azure Cosmos Datenbank gewährt.
+            </summary>
+            <typeparam name="ItemType">Der Typ in der Datenbank, mit dem man umgehen will.</typeparam>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.QueryAsync(System.Func{System.Linq.IOrderedQueryable{`0},System.Linq.IQueryable{`0}})">
+            <summary>
+            Fragt die Datenbank ab.
+            </summary>
+            <param name="query">Die LINQ-Abfrage.</param>
+            <returns>Die von der Abfrage zurückgegebenen Elemente.</returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.GetItemAsync(System.String,System.String)">
+            <summary>
+            Holt ein Element in der Datenbank.
+            </summary>
+            <param name="partitionKey">Der Partitionsschlüssel.</param>
+            <param name="id">Die Identifikation des Elements.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.GetItemCountAsync">
+            <summary>
+            Stellt das Anzahl von bisherig gespeicherten Elementen.
+            </summary>
+            <returns>Wie viele Element des Typs in der Datenbank dastehen.</returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.AddItemAsync(`0)">
+            <summary>
+            Fügt ein neues Element in der Datenbank hinzu.
+            </summary>
+            <param name="item">Das zu speichernde Element.</param>
+            <remarks>Ein neues ID wird geschaffen für das neue Element.</remarks>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.DeleteItemAsync(System.String,System.String)">
+            <summary>
+            Löscht ein Element in der Datenbank.
+            </summary>
+            <param name="partitionKey">Der Partitionsschlüssel.</param>
+            <param name="id">Die Identifikation des Elements.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.DeleteBatchAsync(System.String,System.Collections.Generic.IList{System.String})">
+            <summary>
+            Löscht viele Elemente in der Datenbank durch transaktionale Batchvorgänge.
+            </summary>
+            <remarks>
+            Azure Cosmos Datenbank gewährt transaktionale Batchvorgänge,
+            insofern alle Elemente zu der gleichen Partition gehören.
+            </remarks>
+            <param name="partitionKey">Der Partitionsschlüssel aller Elemente.</param>
+            <param name="ids">Die Identifikatiosnummern der zu löschenden Elemente.</param>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.UpsertItemAsync(System.String,`0)">
+            <summary>
+            Ändert ein vorherig bestehendes Element, oder
+            wenn es nicht vorhanden ist, wird es hinzugefügt. 
+            </summary>
+            <param name="partitionKey">Der urprüngliche Partitionsschlüssel (vor der Änderung) des Elements.</param>
+            <param name="item">Das zu speichernde geänderte Element.</param>
+            <remarks>
+            Achtung!
+            (1) Anders als das Hinzufügen, erwartungsmäßig wird kein neues ID für das zu ändernde
+            Element geschaffen. Das im Element bestehende ID muss passend sein.
+            (2) Wenn der gegebene ursprüngliche Partitionsschlüssel nicht mit dem Wert im gegebenen
+            zu ändernden Element übereinstimmt, heißt es, dass solches Element auf eine andere Partition
+            verschoben wird. Bevor es in der neuen Partition hinzugefügt wird, muss es zuerst in der
+            bisherigen gelöscht werden. Wenn der ursprüngliche Wert nicht stimmt, dann wird es nicht
+            gefunden und die ganze Operation scheitert.
+            </remarks>
+        </member>
+        <member name="M:Reusable.DataAccess.Cosmos.ICosmosDbService`1.UpsertBatchAsync(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Führt ein transaktionales Batch von Upsert-Vorgänge.
+            </summary>
+            <param name="items">
+            Eine Liste der zu ändernden Elemente.
+            Alle Elemente müssen zu der gleichen Partition gehören.
+            </param>
+        </member>
+    </members>
+</doc>

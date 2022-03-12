@@ -26,13 +26,12 @@ namespace Reusable.DataAccess.Cosmos
 
         /// <summary>
         /// Gewährleistet, dass die Azure Cosmos Datenbank und Container vorhanden sind,
-        /// dann initialisiert ein Client und gibt es der Erstellung einer Instanz von
-        /// <see cref="CosmosDbService{ItemType}"/> ab.
+        /// dann initialisiert ein Client für den Datenbankdienst.
         /// </summary>
         /// <param name="databaseName">Der Name der Datenbank.</param>
         /// <param name="connectionString">The Verbindungszeichenfolge für die Datenbank.</param>
         /// <param name="idGenerator">Implementierung für die Beschafung einer einzigartigen ID.</param>
-        /// <returns>Die erstellte Instanz von <see cref="CosmosDbService{ItemType}"/></returns>
+        /// <returns>Eine erstellte Instanz von <see cref="CosmosDbService{ItemType}"/></returns>
         public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(
             string databaseName,
             string connectionString,
@@ -48,6 +47,13 @@ namespace Reusable.DataAccess.Cosmos
             return service;
         }
 
+        /// <summary>
+        /// Gewährleistet, dass die Azure Cosmos Datenbank und Container vorhanden sind,
+        /// dann initialisiert ein Client für den Datenbankdienst.
+        /// </summary>
+        /// <param name="databaseName">Der Name der Datenbank.</param>
+        /// <param name="connectionString">The Verbindungszeichenfolge für die Datenbank.</param>
+        /// <returns>Eine erstellte Instanz von <see cref="CosmosDbService{ItemType}"/></returns>
         public static async Task<CosmosDbService<ItemType>> InitializeCosmosClientInstanceAsync(
             string databaseName,
             string connectionString)
@@ -68,6 +74,10 @@ namespace Reusable.DataAccess.Cosmos
 
         private bool _disposed = false;
 
+        /// <summary>
+        /// Entsorgt die Ressourcen der Instanz.
+        /// </summary>
+        /// <param name="disposing">Ob die Entsorgung ordentlich stattfindet.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -81,17 +91,22 @@ namespace Reusable.DataAccess.Cosmos
             _disposed = true;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Wird durgeführt, wenn die Instanz nicht ordentlich entsorgt wurde.
+        /// </summary>
         ~CosmosDbService()
         {
             Dispose(false);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<ItemType>> QueryAsync(
             Func<IOrderedQueryable<ItemType>, IQueryable<ItemType>> query)
         {
@@ -109,6 +124,7 @@ namespace Reusable.DataAccess.Cosmos
             return results;
         }
 
+        /// <inheritdoc/>
         public async Task<ItemType> GetItemAsync(string partitionKey, string id)
         {
             try
@@ -123,6 +139,7 @@ namespace Reusable.DataAccess.Cosmos
             }
         }
 
+        /// <inheritdoc/>
         public async Task<int> GetItemCountAsync()
         {
             using FeedIterator<int> query = _container.GetItemQueryIterator<int>(
@@ -144,6 +161,7 @@ namespace Reusable.DataAccess.Cosmos
             return response.First();
         }
 
+        /// <inheritdoc/>
         public async Task<ItemType> AddItemAsync(ItemType item)
         {
             item = item.ShallowCopy();
@@ -152,11 +170,13 @@ namespace Reusable.DataAccess.Cosmos
             return response.Resource;
         }
 
+        /// <inheritdoc/>
         public async Task DeleteItemAsync(string partitionKey, string id)
         {
             await _container.DeleteItemAsync<ItemType>(id, new PartitionKey(partitionKey));
         }
 
+        /// <inheritdoc/>
         public async Task DeleteBatchAsync(string partitionKey, IList<string> ids)
         {
             for (int itemIdx = 0; itemIdx < ids.Count; itemIdx += maxItemsPerBatch)
@@ -176,6 +196,7 @@ namespace Reusable.DataAccess.Cosmos
             }
         }
 
+        /// <inheritdoc/>
         public async Task UpsertItemAsync(string partitionKey, ItemType item)
         {
             if (string.IsNullOrWhiteSpace(item.Id))
@@ -199,6 +220,7 @@ namespace Reusable.DataAccess.Cosmos
             await _container.UpsertItemAsync(item);
         }
 
+        /// <inheritdoc/>
         public async Task UpsertBatchAsync(IEnumerable<ItemType> items)
         {
             if (items.Count() == 0)
