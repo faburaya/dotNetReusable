@@ -15,6 +15,11 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '6.x'
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -39,5 +44,5 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     testSelector: 'testAssemblies'
-    testAssemblyVer2: '**\bin\$(buildConfiguration)\net5.0\Reusable.*Tests.dll'
+    testAssemblyVer2: '**\bin\$(buildConfiguration)\net6.0\Reusable.*Tests.dll'
     codeCoverageEnabled: true
