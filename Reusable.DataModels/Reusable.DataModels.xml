@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.DataModels</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.DataModels.CosmosContainerAttribute">
+            <summary>
+            Dieses Attribut beschreibt das Container in der Azure Cosmos Datenbank,
+            in dem eine Klasse gespeichert werden soll.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosContainerAttribute.Name">
+            <summary>
+            Der Name des Containers.
+            </summary>
+        </member>
+        <member name="T:Reusable.DataModels.CosmosDbItem`1">
+            <summary>
+            Minimal Definition für ein Objekt, das in Azure Cosmos Datenbank gespeichert werden soll.
+            Jede solches Objekt muss sich davon ableiten.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosDbItem`1.Id">
+            <summary>
+            Die Indentifikationsnummer des Elements.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosDbItem`1.PartitionKeyValue">
+            <summary>
+            Der Partitionsschlüssel.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbItem`1.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbItem`1.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbItem`1.ShallowCopy">
+            <summary>
+            Führt eine oberflächliche Kopie des Objekts.
+            </summary>
+            <returns>Eine Kopie des Objekts.</returns>
+        </member>
+        <member name="T:Reusable.DataModels.CosmosDbPartitionedItem`1">
+            <summary>
+            Einrichtung um einen Typ herum, der als Element der Datenbank dient.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbPartitionedItem`1.CalculateHashOfJsonFor(System.Object)">
+            <summary>
+            Gibt ein Hash-Code zurück, das berechnet wird, sodass nur die
+            JSON-serialisierbaren Properties berücksichtigt werden.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbPartitionedItem`1.GetPartitionKeyValue(System.Object)">
+            <summary>
+            Findet die Partition eines Objekts heraus.
+            </summary>
+            <param name="obj">Der gegebene Objekt, das von Typ <typeparamref name="ItemType"/> sein muss.</param>
+            <returns>Der Partitionsschlüsselwert.</returns>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosDbPartitionedItem`1.PartitionKeyPath">
+            <summary>
+            Der Pfad des Partitionsschlüssels.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosDbPartitionedItem`1.ContainerName">
+            <summary>
+            Der Name des Containers, das den Typ <typeparamref name="ItemType"/> speichert.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.CosmosDbPartitionedItem`1.#cctor">
+            <summary>
+            Initialisiert die Einrichtung.
+            </summary>
+            <summary>
+            Findet den Pfad des Partitionsschlüssels, der von einem Attribut markiert ist,
+            und dessen Namen den Namen in der JSON-Serialisierung gleicht.
+            </summary>
+        </member>
+        <member name="T:Reusable.DataModels.CosmosPartitionKeyAttribute">
+            <summary>
+            Attribute für ein Property, das als Partitionsschlüssel in der Datenbank dient.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.CosmosPartitionKeyAttribute.IsDatabasePartitionKey">
+            <summary>
+            Weist auf, dass das Property den Partitionsschlüsselwert gibt.
+            </summary>
+        </member>
+        <member name="T:Reusable.DataModels.ValueSortingOrder">
+            <summary>
+            Listet auf, wie die Schlüsselwerte geordnet werden können.
+            </summary>
+        </member>
+        <member name="F:Reusable.DataModels.ValueSortingOrder.Ascending">
+            <summary>
+            Aufsteigend
+            </summary>
+        </member>
+        <member name="F:Reusable.DataModels.ValueSortingOrder.Descending">
+            <summary>
+            Absteigend
+            </summary>
+        </member>
+        <member name="T:Reusable.DataModels.RdbTableIndexAttribute">
+            <summary>
+            Legt fest, dass die Werte der hingewiesenen Eigenschaft der Klasse für die
+            Erzeugung eines Indexes verwendet werden, wenn die Instanzen dieser Klasse
+            in einer Tabelle einer relationalen Datenbank gespeichert werden.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.RdbTableIndexAttribute.SortingOrder">
+            <summary>
+            Wie die Werte des Index zu sortieren sind.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.RdbTableIndexAttribute.AdditionalSqlClauses">
+            <summary>
+            Zusätzliche SQL-Klausen, die für die Erzeugung des Indexes
+            durch "CREATE INDEX" verwendet werden sollen.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.RdbTableIndexAttribute.#ctor">
+            <summary>
+            Legt die vorgegebenen Werte fest.
+            </summary>
+        </member>
+        <member name="T:Reusable.DataModels.RdbTablePrimaryKeyAttribute">
+            <summary>
+            Legt fest, dass die hingewiesene Eigenschaft der Klasse als Primärschlüssel gilt,
+            wenn die Instanzen der Klasse in einer Tabelle einer relationalen Datenbank gespeichert werden.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.RdbTablePrimaryKeyAttribute.SortingOrder">
+            <summary>
+            Wie die Werte zu sortieren sind.
+            </summary>
+        </member>
+        <member name="M:Reusable.DataModels.RdbTablePrimaryKeyAttribute.#ctor">
+            <summary>
+             Legt die vorgegebenen Werten fest.
+            </summary>
+        </member>
+    </members>
+</doc>

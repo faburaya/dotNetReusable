@@ -9,6 +9,9 @@ namespace Reusable.DataModels
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class CosmosContainerAttribute : Attribute
     {
+        /// <summary>
+        /// Der Name des Containers.
+        /// </summary>
         public string Name { get; set; }
     }
 }

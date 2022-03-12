@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <SignAssembly>false</SignAssembly>
-    <Version>2.2.2</Version>
+    <Version>3.0.2</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
@@ -13,11 +13,9 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Platforms>AnyCPU</Platforms>
     <PackageId>com.faburaya.Reusable.DataModels</PackageId>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
     <Company />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

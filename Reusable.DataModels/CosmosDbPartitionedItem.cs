@@ -32,14 +32,25 @@ namespace Reusable.DataModels
 
         private static readonly PropertyInfo partitionKeyProperty;
 
+        /// <summary>
+        /// Findet die Partition eines Objekts heraus.
+        /// </summary>
+        /// <param name="obj">Der gegebene Objekt, das von Typ <typeparamref name="ItemType"/> sein muss.</param>
+        /// <returns>Der Partitionsschlüsselwert.</returns>
         public static string GetPartitionKeyValue(object obj)
         {
-            var item = (ItemType)obj;
+            var item = obj as ItemType;
             return (string)partitionKeyProperty.GetValue(item);
         }
 
+        /// <summary>
+        /// Der Pfad des Partitionsschlüssels.
+        /// </summary>
         public static string PartitionKeyPath { get; }
 
+        /// <summary>
+        /// Der Name des Containers, das den Typ <typeparamref name="ItemType"/> speichert.
+        /// </summary>
         public static string ContainerName { get; }
 
         /// <summary>
@@ -54,7 +65,7 @@ namespace Reusable.DataModels
             var containerAttribute = typeof(ItemType).GetCustomAttribute<CosmosContainerAttribute>();
             if (containerAttribute == null)
             {
-                throw new NotSupportedException($"Der Name des Containers für den Datenbank: an dem Typ {typeof(ItemType).Name} fehlt das Attribut [CosmosContainer(Name)]!");
+                throw new NotSupportedException($"Der Name des Containers für die Datenbank: an dem Typ {typeof(ItemType).Name} fehlt das Attribut [CosmosContainer(Name)]!");
             }
 
             ContainerName = containerAttribute.Name;

@@ -10,6 +10,9 @@ namespace Reusable.DataModels
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class RdbTableIndexAttribute : Attribute
     {
+        /// <summary>
+        /// Wie die Werte des Index zu sortieren sind.
+        /// </summary>
         public ValueSortingOrder SortingOrder { get; set; }
 
         /// <summary>
@@ -18,6 +21,9 @@ namespace Reusable.DataModels
         /// </summary>
         public string AdditionalSqlClauses { get; set; }
 
+        /// <summary>
+        /// Legt die vorgegebenen Werte fest.
+        /// </summary>
         public RdbTableIndexAttribute()
         {
             SortingOrder = ValueSortingOrder.Ascending;
