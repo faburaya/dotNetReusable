@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>Felipe Vieira Aburaya</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
@@ -10,22 +10,16 @@
     <PackageTags>data access, sqlite, orm</PackageTags>
     <PackageId>com.faburaya.Reusable.DataAccess.Sqlite</PackageId>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf eine SQLite Datenbank nützlich sind.</Description>
-    <Version>1.1.2</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.DataAccess.Sqlite\Reusable.DataAccess.Sqlite.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.DataAccess.Sqlite\Reusable.DataAccess.Sqlite.xml</DocumentationFile>
+    <Version>2.0.2</Version>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="1.4.2" />
-    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="2.2.1" />
+    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="2.0.2" />
+    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="3.0.2" />
     <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.3" />
   </ItemGroup>
 
   <ItemGroup>
