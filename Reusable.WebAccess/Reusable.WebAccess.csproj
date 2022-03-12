@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.WebAccess</PackageId>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für die Entwicklung von Datenzugriff auf dem Internet nützlich sind.</Description>
@@ -10,20 +10,13 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>web, crawler</PackageTags>
-    <Version>4.1.1</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.WebAccess\Reusable.WebAccess.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.WebAccess\Reusable.WebAccess.xml</DocumentationFile>
+    <Version>5.0.1</Version>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\3.1.3\contentFiles\any\netcoreapp3.1\secrets.xsd" />
-    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\3.1.5\contentFiles\any\netcoreapp3.1\secrets.xsd" />
+    <None Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.0.2\contentFiles\any\net6.0\secrets.xsd" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="5.0.1" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.0.2" />
   </ItemGroup>
 
 </Project>
