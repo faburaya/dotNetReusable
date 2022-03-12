@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>Felipe Vieira Aburaya</Authors>
     <PackageId>com.faburaya.Reusable.DataAccess.Common</PackageId>
     <Company />
@@ -11,15 +11,9 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data access</PackageTags>
-    <Version>1.4.3</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.DataAccess.Common\Reusable.DataAccess.Common.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\felip\source\Reusable\Reusable.DataAccess.Common\Reusable.DataAccess.Common.xml</DocumentationFile>
+    <Version>2.0.2</Version>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
