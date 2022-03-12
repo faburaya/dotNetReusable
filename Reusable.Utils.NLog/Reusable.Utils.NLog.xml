@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.Utils.NLog</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.Utils.NLog.Logger">
+            <summary>
+            Bietet von NLog unterstützte Protokollierung.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.#ctor(NLog.Logger)">
+            <summary>
+            Erstellt eine Instanz von <see cref="T:Reusable.Utils.NLog.Logger"/>.
+            </summary>
+            <param name="log">Das Objekt, das den Zugang auf die von NLog unterstützte Protokollierung gewährt.</param>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Critical(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Error(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Warning(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Info(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Debug(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.NLog.Logger.Trace(System.String)">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>
