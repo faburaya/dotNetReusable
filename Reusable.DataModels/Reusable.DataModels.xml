@@ -105,6 +105,17 @@
             Absteigend
             </summary>
         </member>
+        <member name="T:Reusable.DataModels.FieldAttribute">
+            <summary>
+            Dieses Attribut beschreibt das Feld, mit dem ein Property in Verbindung steht.
+            Dieses Feld darf zu einem Formular, zu einer Tabelle einer Datenbank oder Ähnliches gehören.
+            </summary>
+        </member>
+        <member name="P:Reusable.DataModels.FieldAttribute.Name">
+            <summary>
+            Der Name des Felds.
+            </summary>
+        </member>
         <member name="T:Reusable.DataModels.RdbTableIndexAttribute">
             <summary>
             Legt fest, dass die Werte der hingewiesenen Eigenschaft der Klasse für die
