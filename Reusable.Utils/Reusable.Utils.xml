@@ -34,6 +34,22 @@
             <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
             <returns>Der Index der oberen Grenze.</returns>
         </member>
+        <member name="T:Reusable.Utils.CollectionExtension">
+            <summary>
+            Implementiert Erweiterungen, die bei der Handlung von Sammlungen hilfreich sind.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.CollectionExtension.ChangeValue``2(System.Collections.Generic.Dictionary{``0,``1},``0,System.Func{``1,``1})">
+            <summary>
+            Ändert einen Wert in der Hashtabelle durch einen einzigen Vorgang.
+            </summary>
+            <typeparam name="KeyType">Der Typ des Schlüsselwerts.</typeparam>
+            <typeparam name="ValueType">Der Typ des Werts.</typeparam>
+            <param name="dictionary">Die Hashtabelle.</param>
+            <param name="key">Der Schlüsselwert.</param>
+            <param name="getPreviousValueAndSetNew">Eine Rückrufaktion, die den derzeitigen oder vorgegebenen Wert bekommt und einen Neuen setzt.</param>
+            <returns>Ob ein dem Schlüssel enstsprechender Wert schon vorhanden war.</returns>
+        </member>
         <member name="T:Reusable.Utils.ILogger">
             <summary>
             Emöglicht die Injezierung von unterschiedlichen Protokollanbietern, etwa

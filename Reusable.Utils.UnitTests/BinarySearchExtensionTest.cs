@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Xunit;
 
-using Xunit;
-using Reusable.Utils;
-
-namespace Reusable.Utils.Tests
+namespace Reusable.Utils.UnitTests
 {
     public class BinarySearchExtensionTest
     {

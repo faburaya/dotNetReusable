@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.Utils</PackageId>
-    <Version>6.0.2</Version>
+    <Version>6.1.2</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.Utils</Product>
     <PackageProjectUrl>https://github.com/faburaya/dotNetReusable</PackageProjectUrl>
