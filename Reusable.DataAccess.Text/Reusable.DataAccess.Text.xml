@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Reusable.DataAccess.Text</name>
+    </assembly>
+    <members>
+        <member name="T:Reusable.DataAccess.Text.CsvParser`1">
+            <summary>
+            Zergliedert Textinhalt im CSV-Format.
+            </summary>
+            <typeparam name="DataType">Der Datentyp, dessen Instanzen von der Zergliederung erzeugt werden.</typeparam>
+        </member>
+        <member name="M:Reusable.DataAccess.Text.CsvParser`1.Parse(System.Collections.Generic.IList{System.String})">
+            <inheritdoc cref="M:Reusable.DataAccess.Text.ITextLinesParser`1.Parse(System.Collections.Generic.IList{System.String})"/>
+        </member>
+        <member name="T:Reusable.DataAccess.Text.ITextLinesParser`1">
+            <summary>
+            Schnittstelle für die Zergliderung von Textinhalt, der in Zeilen organisiert ist.
+            </summary>
+            <typeparam name="DataType"></typeparam>
+        </member>
+        <member name="M:Reusable.DataAccess.Text.ITextLinesParser`1.Parse(System.Collections.Generic.IList{System.String})">
+            <summary>
+            Zergliedert den Textinhalt.
+            </summary>
+            <param name="lines">Die Textzeilen.</param>
+            <returns>Eine Liste von Objekten des Typs <typeparamref name="DataType"/>, dia den Textzeilen entnommen wurden.</returns>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException">Tritt bei einem Fehler der Zergliederung auf.</exception>
+            <exception cref="T:System.AggregateException">Gruppiert mehrere Fehler des Typs <see cref="T:Reusable.DataAccess.Common.ParserException"/>.</exception>
+        </member>
+    </members>
+</doc>
