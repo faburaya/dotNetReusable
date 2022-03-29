@@ -30,6 +30,7 @@
             <param name="hops"> Eine Liste von Zergliedern für jedes erwartetes Hop.</param>
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
             <returns>Eine asynchrone Aufgabe, die die gesamten gesammelten Daten verspricht.</returns>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException" />
         </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.CollectData(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.IHyperlinksParser},Reusable.WebAccess.IHypertextContentParser{`0})">
             <summary>
@@ -40,6 +41,7 @@
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
             <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
             <returns>Eine Liste mit den gesammelten Daten.</returns>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException" />
         </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.CollectDataSlowly(System.Uri,System.Collections.Generic.IEnumerable{Reusable.WebAccess.IHyperlinksParser},Reusable.WebAccess.IHypertextContentParser{`0})">
             <summary>
@@ -51,6 +53,7 @@
             <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
             <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
             <returns>Eine Liste mit den gesammelten Daten.</returns>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException" />
         </member>
         <member name="M:Reusable.WebAccess.DatenSauger`1.WrapCall``1(System.Func{System.Collections.Generic.IEnumerable{``0}},System.Uri)">
             <summary>
@@ -85,7 +88,7 @@
             Zergliedert bestimmte Links von Hypertext.
             </summary>
             <param name="hypertext">Der gegebene Hypertext.</param>
-            <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>
         <member name="T:Reusable.WebAccess.IHypertextContentParser`1">
             <summary>
@@ -98,7 +101,7 @@
             Zergliedert den gegebenen Hypertext.
             </summary>
             <param name="hypertext">Der zu zergliedernde Hypertext.</param>
-            <exception cref="T:Reusable.WebAccess.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
+            <exception cref="T:Reusable.DataAccess.Common.ParserException">Dieser Typ darf speziell behandelt werden.</exception>
         </member>
         <member name="T:Reusable.WebAccess.IHypertextFetcher">
             <summary>
@@ -111,18 +114,6 @@
             </summary>
             <param name="url">Das gegebene URL.</param>
             <returns>Der Hypertext der Internetseite.</returns>
-        </member>
-        <member name="T:Reusable.WebAccess.ParserException">
-            <summary>
-            Stellt eine Ausnahme dar, die beim Zergliedern auftritt.
-            </summary>
-        </member>
-        <member name="M:Reusable.WebAccess.ParserException.#ctor(System.String,System.Exception)">
-            <summary>
-            Erstellt eine neue Instanz von <see cref="T:Reusable.WebAccess.ParserException"/>.
-            </summary>
-            <param name="message">Eine Nachricht.</param>
-            <param name="innerException">Die einzuwickelnde Ausnahme.</param>
         </member>
     </members>
 </doc>

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Moq;
 using Xunit;
 using Reusable.Utils;
+using Reusable.DataAccess.Common;
 
 namespace Reusable.WebAccess.UnitTests
 {
@@ -15,7 +16,7 @@ namespace Reusable.WebAccess.UnitTests
     {
         private const string _logFilePath = "DatenSaugerTest.log.txt";
 
-        private readonly SimpleFileLogger _log = new SimpleFileLogger(_logFilePath);
+        private readonly SimpleFileLogger _log = new(_logFilePath);
 
         private bool _disposed = false;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Reusable.DataAccess.Common;
+
 namespace Reusable.WebAccess
 {
     /// <summary>

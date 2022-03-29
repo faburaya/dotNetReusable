@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Reusable.DataAccess.Common;
+
 namespace Reusable.WebAccess
 {
     /// <summary>
@@ -39,6 +41,7 @@ namespace Reusable.WebAccess
         /// <param name="hops"> Eine Liste von Zergliedern für jedes erwartetes Hop.</param>
         /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
         /// <returns>Eine asynchrone Aufgabe, die die gesamten gesammelten Daten verspricht.</returns>
+        /// <exception cref="ParserException" />
         public async Task<IEnumerable<DataType>> CollectDataAsync(
             Uri firstUrl,
             IEnumerable<IHyperlinksParser> hops,
@@ -69,6 +72,7 @@ namespace Reusable.WebAccess
         /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
         /// <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
         /// <returns>Eine Liste mit den gesammelten Daten.</returns>
+        /// <exception cref="ParserException" />
         public IEnumerable<DataType> CollectData(
             Uri firstUrl,
             IEnumerable<IHyperlinksParser> hops,
@@ -106,6 +110,7 @@ namespace Reusable.WebAccess
         /// <param name="contentParser">Injizierter Zerglieder für den Inhalt der am Ende der Hops erreichten Webseite.</param>
         /// <remarks>Denn das Herunterladen von Webseiten zeitintensiv sein kann, läuft es asynchron im Hintergrund, während die Ergebnisse schrittweise freigegeben werden.</remarks>
         /// <returns>Eine Liste mit den gesammelten Daten.</returns>
+        /// <exception cref="ParserException" />
         public IEnumerable<DataType> CollectDataSlowly(
             Uri firstUrl,
             IEnumerable<IHyperlinksParser> hops,
