@@ -96,7 +96,25 @@ namespace Reusable.DataAccess.Text.UnitTests
         }
 
         [Fact]
-        public void Parse_WhenConversionNotPossible_IfSomeLinesArValid_ThenProduceParsedObjectsBeforeThrow()
+        public void Parse_WhenTableWellFormed_IfParticularSeparator_ThenReturnParsedObjects()
+        {
+            CsvParser<Person> parser = new('\t');
+            IEnumerable<Person> actualItems =
+                parser.Parse(new string[] {
+                    "id\tnome\tvivo",
+                    "10\tPutin\ttrue",
+                    "11\tLenin\tfalse",
+                });
+
+            Person[] expectedItems = new[] {
+                new Person { Id = 10, Name = "Putin", Alive = true },
+                new Person { Id = 11, Name = "Lenin", Alive = false },
+            };
+            Assert.Equal(expectedItems, actualItems);
+        }
+
+        [Fact]
+        public void Parse_WhenConversionNotPossible_IfSomeLinesAreValid_ThenProduceParsedObjectsBeforeThrow()
         {
             CsvParser<Person> parser = new();
             IEnumerable<Person> actualItems =

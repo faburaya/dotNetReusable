@@ -45,6 +45,17 @@ namespace Reusable.DataAccess.Text
             fieldsToParse.Sort();
         }
 
+        /// <summary>
+        /// Erstellt eine neue Instanz der Klasse <see cref="CsvParser{DataType}"/>.
+        /// </summary>
+        /// <param name="separator">Das Zeichen, das die Werte trennen.</param>
+        public CsvParser(char separator = ',')
+        {
+            _separator = separator;
+        }
+
+        private readonly char _separator;
+
         /// <inheritdoc cref="ITextLinesParser{DataType}.Parse(IList{string})"/>
         public IEnumerable<DataType> Parse(IList<string> lines)
         {
@@ -54,7 +65,7 @@ namespace Reusable.DataAccess.Text
             }
 
             string header = lines[0];
-            string[] columnNames = header.Split(',');
+            string[] columnNames = header.Split(_separator);
             if (columnNames.Length == 0)
             {
                 throw new Common.ParserException("Es gibt keine Spalte!");
@@ -102,7 +113,7 @@ namespace Reusable.DataAccess.Text
 
                 try
                 {
-                    string[] fields = lines[rowIdx].Split(',');
+                    string[] fields = lines[rowIdx].Split(_separator);
                     if (fields.Length != columnNames.Length)
                     {
                         throw new Common.ParserException($"Die Zeile #{rowIdx} stimmt nicht mit der Kopfzeile überein: die Anzahl von Spalten sind nicht gleich!");

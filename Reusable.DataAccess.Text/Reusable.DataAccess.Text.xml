@@ -10,6 +10,12 @@
             </summary>
             <typeparam name="DataType">Der Datentyp, dessen Instanzen von der Zergliederung erzeugt werden.</typeparam>
         </member>
+        <member name="M:Reusable.DataAccess.Text.CsvParser`1.#ctor(System.Char)">
+            <summary>
+            Erstellt eine neue Instanz der Klasse <see cref="T:Reusable.DataAccess.Text.CsvParser`1"/>.
+            </summary>
+            <param name="separator">Das Zeichen, das die Werte trennen.</param>
+        </member>
         <member name="M:Reusable.DataAccess.Text.CsvParser`1.Parse(System.Collections.Generic.IList{System.String})">
             <inheritdoc cref="M:Reusable.DataAccess.Text.ITextLinesParser`1.Parse(System.Collections.Generic.IList{System.String})"/>
         </member>
