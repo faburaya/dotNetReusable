@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <PackageId>com.faburaya.Reusable.DataAccess.Cosmos</PackageId>
-    <Version>5.0.2</Version>
+    <Version>5.0.3</Version>
     <Authors>Felipe Vieira Aburaya</Authors>
     <Product>Reusable.DataAccess.Cosmos</Product>
     <Description>Eine Sammlung von wiederverwendbaren Klassen, die für den Zugriff Azure Cosmos Datenbank nützlich sind.</Description>
@@ -18,6 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.2.1\contentFiles\any\net6.0\secrets.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -25,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="2.0.2" />
-    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="3.0.2" />
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.0.2" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.26.0" />
+    <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="2.1.2" />
+    <PackageReference Include="com.faburaya.Reusable.DataModels" Version="3.1.2" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.2.1" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.27.2" />
   </ItemGroup>
 
 </Project>
