@@ -10,17 +10,13 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>web, crawler</PackageTags>
-    <Version>6.0.1</Version>
+    <Version>6.0.2</Version>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.1.2\contentFiles\any\net6.0\secrets.xsd" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.1.2\contentFiles\any\net6.0\secrets.xsd" />
+    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.2.1\contentFiles\any\net6.0\secrets.xsd" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="2.1.2" />
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.1.2" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.2.1" />
   </ItemGroup>
 
 </Project>
