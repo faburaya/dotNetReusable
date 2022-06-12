@@ -10,14 +10,18 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>utils, log, nlog</PackageTags>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.0.2" />
-    <PackageReference Include="NLog" Version="4.7.14" />
+    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.2.1\contentFiles\any\net6.0\secrets.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.2.1" />
+    <PackageReference Include="NLog" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
