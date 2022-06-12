@@ -265,6 +265,65 @@
         <member name="M:Reusable.Utils.SimpleLoggerBase.Trace(System.String)">
             <inheritdoc/>
         </member>
+        <member name="T:Reusable.Utils.SubstringRef">
+            <summary>
+            Stellt ein Verweis auf eine Zeichenkette innerhalb einem bestimmten Text.
+            </summary>
+        </member>
+        <member name="F:Reusable.Utils.SubstringRef.start">
+            <summary>
+            Der Index des Anfangs der Zeichenkette.
+            </summary>
+        </member>
+        <member name="F:Reusable.Utils.SubstringRef.length">
+            <summary>
+            Die Länge der Zeichenkette.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.#ctor">
+            <summary>
+            Erstellt ein leeres Objekt.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Erstellt ein Objekt des Typs <see cref="T:Reusable.Utils.SubstringRef"/>.
+            </summary>
+            <param name="source">Der Quelltext.</param>
+            <param name="start">Der Index des Anfangs der Zeichenkette.</param>
+            <param name="length">Die Länge der Zeichenkette.</param>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.#ctor(System.Text.RegularExpressions.Capture,System.String)">
+            <summary>
+            Erstellt ein Objekt des Typs <see cref="T:Reusable.Utils.SubstringRef"/>.
+            </summary>
+            <param name="match">Eine einzelne Übereinstimmung eines regulären Ausdruck im Quelltext.</param>
+            <param name="source">Der Quelltext.</param>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.AsSpan">
+            <summary>
+            Wandelt das Objekt in den Typ <see cref="T:System.ReadOnlySpan`1"/> um.
+            </summary>
+            <returns>Eine Instanz des Typs <see cref="T:System.ReadOnlySpan`1"/>, die auf den Quelltext hinweist.</returns>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.CompareTo(Reusable.Utils.SubstringRef,System.StringComparison)">
+            <summary>
+            Vergleicht diese Instanz mit einem anderem Objekt desselben Typs.
+            </summary>
+            <param name="other">Das andere Objekt.</param>
+            <param name="comparison">Wie der Vergleich auszuführen ist.</param>
+            <returns>
+            Gibt eine Zahl unter 0 zurück, falls diese Instanz vor <paramref name="other"/> einzuordnen ist.
+            Gibt eine Zahl über 0 zurück, falls diese Instanz nach <paramref name="other"/> einzuordnen ist.
+            Gibt 0 zurück, falls der Inhalt dieses Instanz dem Inhalt von <paramref name="other"/> gleicht.
+            </returns>
+        </member>
+        <member name="M:Reusable.Utils.SubstringRef.CompareTo(Reusable.Utils.SubstringRef)">
+            <inheritdoc/>
+        </member>
         <member name="T:Reusable.Utils.UidGenerator`1">
             <summary>
             Grundlegende Implementierung für die Erstellung von einzigartigen Identificakationen.
@@ -277,6 +336,53 @@
             <param name="obj">Das gegebene Objekt.</param>
             <returns>Eine Identifikation.</returns>
             <remarks>Die Identifikation ist nie dieselbe, auch wenn das Objekt dasselbe ist.</remarks>
+        </member>
+        <member name="T:Reusable.Utils.WordUtils">
+            <summary>
+            Sammlung von Algorithmen, die bei der Arbeit mit Wörtern nützlich sind.
+            </summary>
+        </member>
+        <member name="M:Reusable.Utils.WordUtils.FindEndOfWord(System.String,System.Int32)">
+            <summary>
+            Findet das Ende eines Wortes.
+            </summary>
+            <param name="text">Der Text.</param>
+            <param name="offset">Ab dieser Indexposition nach rechts startet die Suche.</param>
+            <returns>Falls <paramref name="offset"/> mitten in einem Wort liegt, dann gibt die Indexposition nach seinem letzten Charakter zurück, sonst <paramref name="offset"/>.</returns>
+        </member>
+        <member name="M:Reusable.Utils.WordUtils.FindStartOfWord(System.String,System.Int32)">
+            <summary>
+            Findet den Anfang eines Wortes.
+            </summary>
+            <param name="text">Der Text.</param>
+            <param name="offset">Ab dieser Indexposition nach links startet die Suche.</param>
+            <returns>Falls <paramref name="offset"/> mitten in einem Wort liegt, dann gibt die Indexposition seines ersten Charakters zurück, sonst <paramref name="offset"/>.</returns>
+        </member>
+        <member name="M:Reusable.Utils.WordUtils.FindClosestStartOrEndOfWord(System.String,System.Int32)">
+            <summary>
+            Findet den Anfang oder das Ende eines Wortes, je nachdem, welche näher ist.
+            </summary>
+            <param name="text">Der Text.</param>
+            <param name="offset">Es wird um diese Indexposition rückwärts nach dem Anfang des Wortes und vorwärts nach dem Ende des Wortes gesucht.</param>
+            <returns>Falls <paramref name="offset"/> innerhalb eines Wort liegt, dann gibt die Indexposition des Anfangs oder des Endes des Wortes zurück, je nachdem, welche näher ist. Sonst, gibt <paramref name="offset"/> zurück.</returns>
+        </member>
+        <member name="M:Reusable.Utils.WordUtils.SplitIntoWordsAsRefs(System.String,System.Int32,System.Int32)">
+            <summary>
+            Spaltet einen Bereich im Text in Wörter auf.
+            </summary>
+            <param name="text">Der Text.</param>
+            <param name="begin">Legt den Bereich fest: die Indexposition des ersten Charakter.</param>
+            <param name="end">Legt den Bereich fest: die Indexposition nach dem letzten Charakter.</param>
+            <returns>Eine Liste mit Instanzen von <see cref="T:Reusable.Utils.SubstringRef"/>, die auf die Wörter verweisen.</returns>
+        </member>
+        <member name="M:Reusable.Utils.WordUtils.SplitIntoWords(System.String,System.Int32,System.Int32)">
+            <summary>
+            Spaltet einen Bereich im Text in Wörter auf.
+            </summary>
+            <param name="text">Der Text.</param>
+            <param name="begin">Legt den Bereich fest: die Indexposition des ersten Charakter.</param>
+            <param name="end">Legt den Bereich fest: die Indexposition nach dem letzten Charakter.</param>
+            <returns>Eine Liste mit Kopien der aufgespalteten Wörter.</returns>
         </member>
         <member name="T:Reusable.Utils.XmlMetadata">
             <summary>
