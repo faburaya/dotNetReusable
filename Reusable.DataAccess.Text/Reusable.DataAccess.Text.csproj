@@ -12,13 +12,13 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data access, text</PackageTags>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.1.2\contentFiles\any\net6.0\secrets.xsd" />
+    <Content Remove="C:\Users\felip\.nuget\packages\com.faburaya.reusable.utils\6.2.1\contentFiles\any\net6.0\secrets.xsd" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +31,7 @@
   <ItemGroup>
     <PackageReference Include="com.faburaya.Reusable.DataAccess.Common" Version="2.1.2" />
     <PackageReference Include="com.faburaya.Reusable.DataModels" Version="3.1.2" />
-    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.1.2" />
+    <PackageReference Include="com.faburaya.Reusable.Utils" Version="6.2.1" />
   </ItemGroup>
 
 </Project>
