@@ -347,24 +347,24 @@
             Findet das Ende eines Wortes.
             </summary>
             <param name="text">Der Text.</param>
-            <param name="offset">Ab dieser Indexposition nach rechts startet die Suche.</param>
-            <returns>Falls <paramref name="offset"/> mitten in einem Wort liegt, dann gibt die Indexposition nach seinem letzten Charakter zurück, sonst <paramref name="offset"/>.</returns>
+            <param name="start">Ab dieser Indexposition nach rechts startet die Suche.</param>
+            <returns>Falls <paramref name="start"/> mitten in einem Wort liegt, dann gibt die Indexposition nach seinem letzten Charakter zurück, sonst <paramref name="start"/>.</returns>
         </member>
         <member name="M:Reusable.Utils.WordUtils.FindStartOfWord(System.String,System.Int32)">
             <summary>
             Findet den Anfang eines Wortes.
             </summary>
             <param name="text">Der Text.</param>
-            <param name="offset">Ab dieser Indexposition nach links startet die Suche.</param>
-            <returns>Falls <paramref name="offset"/> mitten in einem Wort liegt, dann gibt die Indexposition seines ersten Charakters zurück, sonst <paramref name="offset"/>.</returns>
+            <param name="last">Ab dieser Indexposition nach links startet die Suche.</param>
+            <returns>Falls <paramref name="last"/> mitten in einem Wort liegt, dann gibt die Indexposition seines ersten Charakters zurück, sonst <paramref name="last"/>.</returns>
         </member>
         <member name="M:Reusable.Utils.WordUtils.FindClosestStartOrEndOfWord(System.String,System.Int32)">
             <summary>
             Findet den Anfang oder das Ende eines Wortes, je nachdem, welche näher ist.
             </summary>
             <param name="text">Der Text.</param>
-            <param name="offset">Es wird um diese Indexposition rückwärts nach dem Anfang des Wortes und vorwärts nach dem Ende des Wortes gesucht.</param>
-            <returns>Falls <paramref name="offset"/> innerhalb eines Wort liegt, dann gibt die Indexposition des Anfangs oder des Endes des Wortes zurück, je nachdem, welche näher ist. Sonst, gibt <paramref name="offset"/> zurück.</returns>
+            <param name="pos">Es wird um diese Indexposition rückwärts nach dem Anfang des Wortes und vorwärts nach dem Ende des Wortes gesucht.</param>
+            <returns>Falls <paramref name="pos"/> innerhalb eines Wort liegt, dann gibt die Indexposition des Anfangs oder des Endes des Wortes zurück, je nachdem, welche näher ist. Sonst, gibt <paramref name="pos"/> zurück.</returns>
         </member>
         <member name="M:Reusable.Utils.WordUtils.SplitIntoWordsAsRefs(System.String,System.Int32,System.Int32)">
             <summary>
