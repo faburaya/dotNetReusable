@@ -9,7 +9,7 @@
             Implementiert eine allgemeine binäre Suche für sortierte Listen.
             </summary>
         </member>
-        <member name="M:Reusable.Utils.BinarySearchExtension.SearchLowerBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0},System.Comparison{``0})">
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchLowerBoundIndex``2(System.Collections.Generic.IReadOnlyList{``1},``0,System.Func{``1,``0},System.Comparison{``0})">
             <summary>
             Findet in der Liste die untere Grenze ("lower bound"):
             Das erste Element, das den gegebenen Schlüssel aufweist, wenn es vorhaden ist,
@@ -23,7 +23,7 @@
             <param name="compare">Diese Rückrufaktion legt fest, wie die Schlüssel miteinander zu vergleichen und zu ordnen sind.</param>
             <returns>Der Index der unteren Grenze.</returns>
         </member>
-        <member name="M:Reusable.Utils.BinarySearchExtension.SearchLowerBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0})">
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchLowerBoundIndex``2(System.Collections.Generic.IReadOnlyList{``1},``0,System.Func{``1,``0})">
             <summary>
             Findet in der Liste die untere Grenze ("lower bound"):
             Das erste Element, das den gegebenen Schlüssel aufweist, wenn es vorhaden ist,
@@ -36,7 +36,7 @@
             <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
             <returns>Der Index der unteren Grenze.</returns>
         </member>
-        <member name="M:Reusable.Utils.BinarySearchExtension.SearchUpperBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0},System.Comparison{``0})">
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchUpperBoundIndex``2(System.Collections.Generic.IReadOnlyList{``1},``0,System.Func{``1,``0},System.Comparison{``0})">
             <summary>
             Findet in der Liste die obere Grenze ("upper bound"):
             Das erste Element, das einen Schlüssel aufweist, das größer als der gegebener Schlüssel ist.
@@ -49,7 +49,7 @@
             <param name="compare">Diese Rückrufaktion legt fest, wie die Schlüssel miteinander zu vergleichen und zu ordnen sind.</param>
             <returns>Der Index der oberen Grenze.</returns>
         </member>
-        <member name="M:Reusable.Utils.BinarySearchExtension.SearchUpperBoundIndex``2(System.Collections.Generic.IList{``1},``0,System.Func{``1,``0})">
+        <member name="M:Reusable.Utils.BinarySearchExtension.SearchUpperBoundIndex``2(System.Collections.Generic.IReadOnlyList{``1},``0,System.Func{``1,``0})">
             <summary>
             Findet in der Liste die obere Grenze ("upper bound"):
             Das erste Element, das einen Schlüssel aufweist, das größer als der gegebener Schlüssel ist.

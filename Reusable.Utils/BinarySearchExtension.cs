@@ -21,7 +21,7 @@ namespace Reusable.Utils
         /// <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
         /// <param name="compare">Diese Rückrufaktion legt fest, wie die Schlüssel miteinander zu vergleichen und zu ordnen sind.</param>
         /// <returns>Der Index der unteren Grenze.</returns>
-        public static int SearchLowerBoundIndex<KeyType, DataType>(this IList<DataType> values,
+        public static int SearchLowerBoundIndex<KeyType, DataType>(this IReadOnlyList<DataType> values,
                                                                    KeyType key,
                                                                    Func<DataType, KeyType> getKeyOf,
                                                                    Comparison<KeyType> compare)
@@ -50,7 +50,7 @@ namespace Reusable.Utils
         /// <param name="key">Der Schlüssel des erwünschten Elements.</param>
         /// <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
         /// <returns>Der Index der unteren Grenze.</returns>
-        public static int SearchLowerBoundIndex<KeyType, DataType>(this IList<DataType> values,
+        public static int SearchLowerBoundIndex<KeyType, DataType>(this IReadOnlyList<DataType> values,
                                                                    KeyType key,
                                                                    Func<DataType, KeyType> getKeyOf)
             where KeyType : IComparable<KeyType>
@@ -70,7 +70,7 @@ namespace Reusable.Utils
         /// <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
         /// <param name="compare">Diese Rückrufaktion legt fest, wie die Schlüssel miteinander zu vergleichen und zu ordnen sind.</param>
         /// <returns>Der Index der oberen Grenze.</returns>
-        public static int SearchUpperBoundIndex<KeyType, DataType>(this IList<DataType> values,
+        public static int SearchUpperBoundIndex<KeyType, DataType>(this IReadOnlyList<DataType> values,
                                                                    KeyType key,
                                                                    Func<DataType, KeyType> getKeyOf,
                                                                    Comparison<KeyType> compare)
@@ -98,7 +98,7 @@ namespace Reusable.Utils
         /// <param name="key">Der Schlüssel des erwünschten Elements.</param>
         /// <param name="getKeyOf">Gibt den Schlüssel eines gegebenen Elements zurück.</param>
         /// <returns>Der Index der oberen Grenze.</returns>
-        public static int SearchUpperBoundIndex<KeyType, DataType>(this IList<DataType> values,
+        public static int SearchUpperBoundIndex<KeyType, DataType>(this IReadOnlyList<DataType> values,
                                                                    KeyType key,
                                                                    Func<DataType, KeyType> getKeyOf)
             where KeyType : IComparable<KeyType>
@@ -108,7 +108,7 @@ namespace Reusable.Utils
         }
 
         private static int BinarySearchImpl<KeyType, DataType>(KeyType key,
-                                                               IList<DataType> values,
+                                                               IReadOnlyList<DataType> values,
                                                                ref int low,
                                                                ref int high,
                                                                Func<DataType, KeyType> getKeyOf,
