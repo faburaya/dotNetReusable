@@ -25,6 +25,7 @@
             <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
             <param name="tableName">Der Name der Tabelle.</param>
             <param name="connection">Die Verbindung mit der Datenbank.</param>
+            <returns>Ob die Tabelle erstellt wurde.</returns>
         </member>
         <member name="T:Reusable.DataAccess.Common.ITableAccess`1">
             <summary>

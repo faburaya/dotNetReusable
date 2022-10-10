@@ -23,6 +23,7 @@ namespace Reusable.DataAccess.Common
         /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
         /// <param name="tableName">Der Name der Tabelle.</param>
         /// <param name="connection">Die Verbindung mit der Datenbank.</param>
-        Task CreateTableIfNotExistentAsync<DataType>(string tableName, IDbConnection connection);
+        /// <returns>Ob die Tabelle erstellt wurde.</returns>
+        Task<bool> CreateTableIfNotExistentAsync<DataType>(string tableName, IDbConnection connection);
     }
 }

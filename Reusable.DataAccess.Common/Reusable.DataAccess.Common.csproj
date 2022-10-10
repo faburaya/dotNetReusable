@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/faburaya/dotNetReusable</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>data access</PackageTags>
-    <Version>2.1.2</Version>
+    <Version>3.0.3</Version>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<DocumentationFile>.\$(MSBuildProjectName).xml</DocumentationFile>
   </PropertyGroup>
