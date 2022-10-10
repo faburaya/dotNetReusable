@@ -48,7 +48,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenSimplestType()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Result);
             CheckTableCreationStatement<MySimpleClass>(new[] { "Id integer" });
         }
 
@@ -57,7 +58,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         {
             Fixture.Connection.Execute($"create table {TableName} (dummy_column integer)");
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Wait();
+            Assert.False(
+                helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Result);
             Assert.NotNull(Fixture.ReadActualTableSchemaFromDatabase(TableName));
         }
 
@@ -65,7 +67,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenManyTypes_ThenTableHasCorrespondingSqlTypes()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
 
             CheckTableCreationStatement<Person>(new[] {
                 "Id integer",
@@ -83,7 +86,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKey()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(
+                    TableName, Fixture.Connection).Result);
             CheckTableCreationStatement<MyClassWithPrimaryKey>(new[] { "Id integer not null primary key asc" });
         }
 
@@ -91,7 +96,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasIndexOrderAsc()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithIndexAsc>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MyClassWithIndexAsc>(
+                    TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithIndexAsc>("Id");
         }
 
@@ -99,7 +106,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasIndexOrderDesc()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithIndexDesc>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MyClassWithIndexDesc>(
+                    TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithIndexDesc>("Id");
         }
 
@@ -107,7 +116,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasIndexWithContraint()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithContrainedIndex>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MyClassWithContrainedIndex>(
+                    TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithContrainedIndex>("Id");
         }
 
@@ -115,7 +126,9 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKeyAndIndex()
         {
             var helper = new SqliteDatabaseCreationHelper();
-            helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(TableName, Fixture.Connection).Wait();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(
+                    TableName, Fixture.Connection).Result);
             CheckTableCreationStatement<MyClassWithPrimaryKeyAndIndex>(new[] { "Id integer not null primary key desc" });
             CheckIndexCreationStatement<MyClassWithPrimaryKeyAndIndex>("Number");
         }

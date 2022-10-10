@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,124 +11,131 @@ using Dapper;
 using Microsoft.Data.Sqlite;
 using Reusable.DataModels;
 
-namespace Reusable.DataAccess.Sqlite
+namespace Reusable.DataAccess.Sqlite;
+
+/// <inheritdoc cref="Common.IDatabaseCreationHelper"/>
+public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
 {
-    /// <inheritdoc cref="Common.IDatabaseCreationHelper"/>
-    public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
+    private static readonly SortedList<string, string> clrToSqliteType;
+
+    static SqliteDatabaseCreationHelper()
     {
-        private static readonly SortedList<string, string> clrToSqliteType;
+        // Aus https://docs.microsoft.com/de-de/dotnet/standard/data/sqlite/types
+        clrToSqliteType = new SortedList<string, string> {
+            { typeof(bool).Name, "integer" },
+            { typeof(byte).Name, "integer" },
+            { typeof(byte[]).Name, "blob" },
+            { typeof(char).Name, "text" },
+            { typeof(DateTime).Name, "text" },
+            { typeof(DateTimeOffset).Name, "text" },
+            { typeof(decimal).Name, "text" },
+            { typeof(double).Name, "real" },
+            { typeof(float).Name, "real" },
+            { typeof(Guid).Name, "text" },
+            { typeof(Int16).Name, "integer" },
+            { typeof(Int32).Name, "integer" },
+            { typeof(Int64).Name, "integer" },
+            { typeof(sbyte).Name, "integer" },
+            { typeof(string).Name, "text" },
+            { typeof(TimeSpan).Name, "text" },
+            { typeof(UInt16).Name, "integer" },
+            { typeof(UInt32).Name, "integer" },
+            { typeof(UInt64).Name, "integer" }
+        };
+    }
 
-        static SqliteDatabaseCreationHelper()
+    /// <inheritdoc/>
+    /// <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
+    public IDbConnection OpenOrCreateDatabase(string databaseFilePath)
+    {
+        string connectionString = new SqliteConnectionStringBuilder()
         {
-            // Aus https://docs.microsoft.com/de-de/dotnet/standard/data/sqlite/types
-            clrToSqliteType = new SortedList<string, string> {
-                { typeof(bool).Name, "integer" },
-                { typeof(byte).Name, "integer" },
-                { typeof(byte[]).Name, "blob" },
-                { typeof(char).Name, "text" },
-                { typeof(DateTime).Name, "text" },
-                { typeof(DateTimeOffset).Name, "text" },
-                { typeof(decimal).Name, "text" },
-                { typeof(double).Name, "real" },
-                { typeof(float).Name, "real" },
-                { typeof(Guid).Name, "text" },
-                { typeof(Int16).Name, "integer" },
-                { typeof(Int32).Name, "integer" },
-                { typeof(Int64).Name, "integer" },
-                { typeof(sbyte).Name, "integer" },
-                { typeof(string).Name, "text" },
-                { typeof(TimeSpan).Name, "text" },
-                { typeof(UInt16).Name, "integer" },
-                { typeof(UInt32).Name, "integer" },
-                { typeof(UInt64).Name, "integer" }
-            };
+            Mode = SqliteOpenMode.ReadWriteCreate,
+            Cache = SqliteCacheMode.Shared,
+            DataSource = databaseFilePath
+        }.ToString();
+
+        return new SqliteConnection(connectionString);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> CreateTableIfNotExistentAsync<DataType>(string tableName,
+                                                                    IDbConnection connection)
+    {
+        int prevTableCount = (
+            await connection.QueryAsync<int>(
+                $"select count(1) from sqlite_master WHERE type='table' AND name='{tableName}'")
+        ).First();
+        Debug.Assert(prevTableCount <= 1);
+
+        GenerateStatementsToCreateSchema(tableName, typeof(DataType), out IList<string> statements);
+
+        using IDbTransaction exclusiveTransaction =
+            connection.BeginTransaction(IsolationLevel.Serializable);
+
+        foreach (string statement in statements)
+        {
+            await connection.ExecuteAsync(statement, transaction: exclusiveTransaction);
         }
 
-        /// <inheritdoc/>
-        /// <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
-        public IDbConnection OpenOrCreateDatabase(string databaseFilePath)
+        exclusiveTransaction.Commit();
+        return prevTableCount == 0;
+    }
+
+    /// <summary>
+    /// Erzeugt SQL-Anweisungen zum Erstellen der Tabelle und ihre Indices.
+    /// </summary>
+    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+    /// <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
+    /// <param name="statements">Die erzeugten SQL-Anweisungen.</param>
+    private static void GenerateStatementsToCreateSchema(string tableName,
+                                                         Type objectType,
+                                                         out IList<string> statements)
+    {
+        statements = new List<string> { null };
+
+        bool hasAlreadyPrimaryKey = false;
+        var columnDefinitions = new StringBuilder();
+        PropertyInfo[] allPublicProperties = objectType.GetProperties();
+        for (int idx = 0; idx < allPublicProperties.Length; ++idx)
         {
-            string connectionString = new SqliteConnectionStringBuilder()
+            var propertyInfo = allPublicProperties[idx];
+            columnDefinitions.AppendFormat("{0} {1}",
+                                         propertyInfo.Name,
+                                         clrToSqliteType[propertyInfo.PropertyType.Name]);
+
+            var primaryKeyAttribute = propertyInfo.GetCustomAttribute<RdbTablePrimaryKeyAttribute>();
+            if (primaryKeyAttribute != null)
             {
-                Mode = SqliteOpenMode.ReadWriteCreate,
-                Cache = SqliteCacheMode.Shared,
-                DataSource = databaseFilePath
-            }.ToString();
+                if (hasAlreadyPrimaryKey)
+                {
+                    throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über mehrere Primärschlüsseln!");
+                }
+                hasAlreadyPrimaryKey = true;
 
-            return new SqliteConnection(connectionString);
-        }
-
-        /// <inheritdoc/>
-        public async Task CreateTableIfNotExistentAsync<DataType>(string tableName, IDbConnection connection)
-        {
-            GenerateStatementsToCreateSchema(tableName, typeof(DataType), out IList<string> statements);
-
-            using IDbTransaction exclusiveTransaction =
-                connection.BeginTransaction(IsolationLevel.Serializable);
-
-            foreach (string statement in statements)
-            {
-                await connection.ExecuteAsync(statement, transaction: exclusiveTransaction);
+                columnDefinitions.AppendFormat(" not null primary key {0}",
+                    primaryKeyAttribute.SortingOrder == ValueSortingOrder.Ascending ? "asc" : "desc");
             }
 
-            exclusiveTransaction.Commit();
-        }
-
-        /// <summary>
-        /// Erzeugt SQL-Anweisungen zum Erstellen der Tabelle und ihre Indices.
-        /// </summary>
-        /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
-        /// <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
-        /// <param name="statements">Die erzeugten SQL-Anweisungen.</param>
-        private static void GenerateStatementsToCreateSchema(string tableName,
-                                                             Type objectType,
-                                                             out IList<string> statements)
-        {
-            statements = new List<string> { null };
-
-            bool hasAlreadyPrimaryKey = false;
-            var columnDefinitions = new StringBuilder();
-            PropertyInfo[] allPublicProperties = objectType.GetProperties();
-            for (int idx = 0; idx < allPublicProperties.Length; ++idx)
+            if (idx + 1 < allPublicProperties.Length)
             {
-                var propertyInfo = allPublicProperties[idx];
-                columnDefinitions.AppendFormat("{0} {1}",
-                                             propertyInfo.Name,
-                                             clrToSqliteType[propertyInfo.PropertyType.Name]);
+                columnDefinitions.Append(", ");
+            }
 
-                var primaryKeyAttribute = propertyInfo.GetCustomAttribute<RdbTablePrimaryKeyAttribute>();
+            var tableIndexAttribute = propertyInfo.GetCustomAttribute<RdbTableIndexAttribute>();
+            if (tableIndexAttribute != null)
+            {
                 if (primaryKeyAttribute != null)
                 {
-                    if (hasAlreadyPrimaryKey)
-                    {
-                        throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über mehrere Primärschlüsseln!");
-                    }
-                    hasAlreadyPrimaryKey = true;
-
-                    columnDefinitions.AppendFormat(" not null primary key {0}",
-                        primaryKeyAttribute.SortingOrder == ValueSortingOrder.Ascending ? "asc" : "desc");
+                    throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über eine Eigenschaft, die gleichzeitig als Primärschlüssel und Index gilt!");
                 }
 
-                if (idx + 1 < allPublicProperties.Length)
-                {
-                    columnDefinitions.Append(", ");
-                }
-
-                var tableIndexAttribute = propertyInfo.GetCustomAttribute<RdbTableIndexAttribute>();
-                if (tableIndexAttribute != null)
-                {
-                    if (primaryKeyAttribute != null)
-                    {
-                        throw new Common.OrmException($"Eine Tabelle für den Typ {objectType.Name} darf nicht in Datenbank erstellt werden: die Klasse verfügt über eine Eigenschaft, die gleichzeitig als Primärschlüssel und Index gilt!");
-                    }
-
-                    statements.Add($"create index if not exists {tableName}_{propertyInfo.Name} on {tableName} ({propertyInfo.Name} {(tableIndexAttribute.SortingOrder == ValueSortingOrder.Ascending ? "asc" : "desc")}) {tableIndexAttribute.AdditionalSqlClauses};");
-                }
+                statements.Add($"create index if not exists {tableName}_{propertyInfo.Name} on {tableName} ({propertyInfo.Name} {(tableIndexAttribute.SortingOrder == ValueSortingOrder.Ascending ? "asc" : "desc")}) {tableIndexAttribute.AdditionalSqlClauses};");
             }
-
-            statements[0] = $"create table if not exists {tableName} ({columnDefinitions});";
         }
 
-    }// end of class SqliteDatabaseCreationHelper
+        statements[0] = $"create table if not exists {tableName} ({columnDefinitions});";
+    }
 
-}// end of namespace Reusable.DataAccess.Sqlite
+}// end of class SqliteDatabaseCreationHelper
+
