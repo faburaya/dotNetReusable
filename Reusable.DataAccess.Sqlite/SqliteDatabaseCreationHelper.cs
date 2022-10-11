@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
@@ -11,8 +10,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Reusable.DataAccess.Sqlite;
 
-/// <inheritdoc cref="Common.IDatabaseCreationHelper"/>
-public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
+/// <inheritdoc cref="Common.IDatabaseCreationHelper{DataType}"/>
+public class SqliteDatabaseCreationHelper<DataType> : Common.IDatabaseCreationHelper<DataType>
 {
     /// <inheritdoc/>
     /// <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
@@ -28,9 +27,10 @@ public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
         return new SqliteConnection(connectionString);
     }
 
+    private static IReadOnlyCollection<string> _schemaCreationStatements = null;
+
     /// <inheritdoc/>
-    public async Task<bool> CreateTableIfNotExistentAsync<DataType>(string tableName,
-                                                                    IDbConnection connection)
+    public async Task<bool> CreateTableIfNotExistentAsync(string tableName, IDbConnection connection)
     {
         int prevTableCount = (
             await connection.QueryAsync<int>(
@@ -38,13 +38,13 @@ public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
         ).First();
         Debug.Assert(prevTableCount <= 1);
 
-        var statements =
+        _schemaCreationStatements ??=
             SqliteStatementGenerator.GenerateStatementsToCreateSchema(tableName, typeof(DataType));
 
         using IDbTransaction exclusiveTransaction =
             connection.BeginTransaction(IsolationLevel.Serializable);
 
-        foreach (string statement in statements)
+        foreach (string statement in _schemaCreationStatements)
         {
             await connection.ExecuteAsync(statement, transaction: exclusiveTransaction);
         }
@@ -53,40 +53,29 @@ public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
         return prevTableCount == 0;
     }
 
-    /// <summary>
-    /// Fügt einer Tabelle neue Reihe hinzu.
-    /// </summary>
-    /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
-    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
-    /// <param name="connection">Die Verbindung mit der Datenbank.</param>
-    /// <param name="objects">Die in die Tabelle hinzufügende Objekte.</param>
-    /// <remarks>Am Ende des Aufrufs sind die Objekte gespeichert.</remarks>
-    public async Task InsertAsync<DataType>(string tableName,
-                                            IDbConnection connection,
-                                            IEnumerable<DataType> objects)
+    private static string _insertStatement = null;
+
+    /// <inheritdoc/>
+    public async Task<int> InsertAsync(string tableName,
+                                       IDbConnection connection,
+                                       IEnumerable<DataType> objects)
     {
-        string statement = SqliteStatementGenerator.GenerateInsertStatement(tableName, typeof(DataType));
+        _insertStatement ??= SqliteStatementGenerator.GenerateInsertStatement(tableName, typeof(DataType));
         IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted);
-        await connection.ExecuteAsync(statement, objects, transaction);
+        int rowCount = await connection.ExecuteAsync(_insertStatement, objects, transaction);
         transaction.Commit();
+        return rowCount;
     }
 
-    /// <summary>
-    /// Fügt einer Tabelle neue Reihe hinzu.
-    /// </summary>
-    /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
-    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
-    /// <param name="connection">Die Verbindung mit der Datenbank.</param>
-    /// <param name="transaction">Die zu verwendende Transaktion.</param>
-    /// <param name="objects">Die in die Tabelle hinzufügende Objekten.</param>
-    /// <remarks>Am Ende des Aufrufs ist die Transaktion immer noch offen, deswegen muss sie geschlossen werden, bevor die zu speichernde Objekte sicherlich zur Verfügung stehen.</remarks>
-    public async Task InsertAsync<DataType>(string tableName,
-                                            IDbConnection connection,
-                                            IDbTransaction transaction,
-                                            IEnumerable<DataType> objects)
+    /// <inheritdoc/>
+    public async Task<int> InsertAsync(string tableName,
+                                       IDbConnection connection,
+                                       IDbTransaction transaction,
+                                       IEnumerable<DataType> objects)
     {
-        string statement = SqliteStatementGenerator.GenerateInsertStatement(tableName, typeof(DataType));
-        await connection.ExecuteAsync(statement, objects, transaction);
+        _insertStatement ??= SqliteStatementGenerator.GenerateInsertStatement(tableName, typeof(DataType));
+        int rowCount = await connection.ExecuteAsync(_insertStatement, objects, transaction);
+        return rowCount;
     }
 
 }// end of class SqliteDatabaseCreationHelper

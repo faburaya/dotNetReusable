@@ -4,36 +4,21 @@
         <name>Reusable.DataAccess.Sqlite</name>
     </assembly>
     <members>
-        <member name="T:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper">
-            <inheritdoc cref="T:Reusable.DataAccess.Common.IDatabaseCreationHelper"/>
+        <member name="T:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper`1">
+            <inheritdoc cref="T:Reusable.DataAccess.Common.IDatabaseCreationHelper`1"/>
         </member>
-        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.OpenOrCreateDatabase(System.String)">
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper`1.OpenOrCreateDatabase(System.String)">
             <inheritdoc/>
             <param name="databaseFilePath">Das Pfad der Datei, welche die Datenbank enthält.</param>
         </member>
-        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.CreateTableIfNotExistentAsync``1(System.String,System.Data.IDbConnection)">
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper`1.CreateTableIfNotExistentAsync(System.String,System.Data.IDbConnection)">
             <inheritdoc/>
         </member>
-        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.InsertAsync``1(System.String,System.Data.IDbConnection,System.Collections.Generic.IEnumerable{``0})">
-            <summary>
-            Fügt einer Tabelle neue Reihe hinzu.
-            </summary>
-            <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
-            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
-            <param name="connection">Die Verbindung mit der Datenbank.</param>
-            <param name="objects">Die in die Tabelle hinzufügende Objekte.</param>
-            <remarks>Am Ende des Aufrufs sind die Objekte gespeichert.</remarks>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper`1.InsertAsync(System.String,System.Data.IDbConnection,System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
         </member>
-        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.InsertAsync``1(System.String,System.Data.IDbConnection,System.Data.IDbTransaction,System.Collections.Generic.IEnumerable{``0})">
-            <summary>
-            Fügt einer Tabelle neue Reihe hinzu.
-            </summary>
-            <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
-            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
-            <param name="connection">Die Verbindung mit der Datenbank.</param>
-            <param name="transaction">Die zu verwendende Transaktion.</param>
-            <param name="objects">Die in die Tabelle hinzufügende Objekten.</param>
-            <remarks>Am Ende des Aufrufs ist die Transaktion immer noch offen, deswegen muss sie geschlossen werden, bevor die zu speichernde Objekte sicherlich zur Verfügung stehen.</remarks>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper`1.InsertAsync(System.String,System.Data.IDbConnection,System.Data.IDbTransaction,System.Collections.Generic.IEnumerable{`0})">
+            <inheritdoc/>
         </member>
         <member name="T:Reusable.DataAccess.Sqlite.SqliteStatementGenerator">
             <summary>

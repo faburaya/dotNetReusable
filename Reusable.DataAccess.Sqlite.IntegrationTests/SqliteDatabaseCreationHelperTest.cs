@@ -50,9 +50,8 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         [Fact]
         public void CreateTableIfNotExistent_WhenSimplestType()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<MySimpleClass> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
             CheckTableCreationStatement<MySimpleClass>(new[] { "Id integer" });
         }
 
@@ -60,18 +59,16 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public void CreateTableIfNotExistent_WhenTableAlreadyExists()
         {
             Fixture.Connection.Execute($"create table {TableName} (dummy_column integer)");
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.False(
-                helper.CreateTableIfNotExistentAsync<MySimpleClass>(TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<MySimpleClass> helper = new();
+            Assert.False(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
             Assert.NotNull(Fixture.ReadActualTableSchemaFromDatabase(TableName));
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenManyTypes_ThenTableHasCorrespondingSqlTypes()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<Person> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
 
             CheckTableCreationStatement<Person>(new[] {
                 "Id integer",
@@ -88,86 +85,73 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKey()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKey>(
-                    TableName, Fixture.Connection).Result);
-            CheckTableCreationStatement<MyClassWithPrimaryKey>(new[] { "Id integer not null primary key asc" });
+            SqliteDatabaseCreationHelper<MyClassWithPrimaryKey> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
+            CheckTableCreationStatement<MyClassWithPrimaryKey>(
+                new[] { "Id integer not null primary key asc" });
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasIndexOrderAsc()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MyClassWithIndexAsc>(
-                    TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<MyClassWithIndexAsc> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithIndexAsc>("Id");
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasIndexOrderDesc()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MyClassWithIndexDesc>(
-                    TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<MyClassWithIndexDesc> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithIndexDesc>("Id");
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasIndexWithContraint()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MyClassWithContrainedIndex>(
-                    TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<MyClassWithContrainedIndex> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
             CheckIndexCreationStatement<MyClassWithContrainedIndex>("Id");
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenTypeHasPrimaryKeyAndIndex()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<MyClassWithPrimaryKeyAndIndex>(
-                    TableName, Fixture.Connection).Result);
-            CheckTableCreationStatement<MyClassWithPrimaryKeyAndIndex>(new[] { "Id integer not null primary key desc" });
+            SqliteDatabaseCreationHelper<MyClassWithPrimaryKeyAndIndex> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
+            CheckTableCreationStatement<MyClassWithPrimaryKeyAndIndex>(
+                new[] { "Id integer not null primary key desc" });
             CheckIndexCreationStatement<MyClassWithPrimaryKeyAndIndex>("Number");
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenManyPrimaryKeys_ThenThrow()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-
+            SqliteDatabaseCreationHelper<MyClassWithTwoPrimaryKeys> helper = new();
             Assert.ThrowsAsync<Common.OrmException>(() =>
-                helper.CreateTableIfNotExistentAsync<MyClassWithTwoPrimaryKeys>(
-                    TableName, Fixture.Connection)
+                helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection)
             );
         }
 
         [Fact]
         public void CreateTableIfNotExistent_WhenPrimaryKeyAlsoIndex_ThenThrow()
         {
-            var helper = new SqliteDatabaseCreationHelper();
-
+            SqliteDatabaseCreationHelper<MyClassWithConflictingAttributes> helper = new();
             Assert.ThrowsAsync<Common.OrmException>(() =>
-                helper.CreateTableIfNotExistentAsync<MyClassWithConflictingAttributes>(
-                    TableName, Fixture.Connection)
+                helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection)
             );
         }
 
         [Fact]
         public void Insert_WhenEmptyList_ThenDoNothing()
         {
-            SqliteDatabaseCreationHelper helper = new();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
-
-            helper.InsertAsync(TableName, Fixture.Connection, Array.Empty<Person>()).Wait();
-            int rowCount = Fixture.Connection.Query<int>($"select count(1) from {TableName}").First();
+            SqliteDatabaseCreationHelper<Person> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
+            int rowCount = helper.InsertAsync(TableName, Fixture.Connection, Array.Empty<Person>()).Result;
             Assert.Equal(0, rowCount);
+            int actualRowCount = Fixture.Connection.Query<int>($"select count(1) from {TableName}").First();
+            Assert.Equal(0, actualRowCount);
         }
 
         private static readonly Person[] _expectedPeople = new[] {
@@ -179,35 +163,35 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         [Fact]
         public void Insert_WhenObjectsAvailable_ThenInsertThem()
         {
-            SqliteDatabaseCreationHelper helper = new();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
-
-            helper.InsertAsync(TableName, Fixture.Connection, _expectedPeople).Wait();
+            SqliteDatabaseCreationHelper<Person> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
+            int rowCount = helper.InsertAsync(TableName, Fixture.Connection, _expectedPeople).Result;
             Person[] actualPeople = Fixture.Connection.Query<Person>($"select * from {TableName}").ToArray();
             Array.Sort(_expectedPeople, (a, b) => a.Name.CompareTo(b.Name));
             Array.Sort(actualPeople, (a, b) => a.Name.CompareTo(b.Name));
             Assert.Equal(actualPeople, _expectedPeople);
+            Assert.Equal(actualPeople.Length, rowCount);
         }
 
         [Fact]
         public void Insert_WhenTransactionProvided_ThenInsertWithinTransaction()
         {
-            SqliteDatabaseCreationHelper helper = new();
-            Assert.True(
-                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
+            SqliteDatabaseCreationHelper<Person> helper = new();
+            Assert.True(helper.CreateTableIfNotExistentAsync(TableName, Fixture.Connection).Result);
 
             using IDbTransaction transaction = Fixture.Connection.BeginTransaction();
+            int rowCount = 0;
             Person[] somePeople = _expectedPeople.Take(_expectedPeople.Length / 2).ToArray();
-            helper.InsertAsync(TableName, Fixture.Connection, transaction, somePeople).Wait();
+            rowCount += helper.InsertAsync(TableName, Fixture.Connection, transaction, somePeople).Result;
             Person[] morePeople = _expectedPeople.Skip(somePeople.Length).ToArray();
-            helper.InsertAsync(TableName, Fixture.Connection, transaction, morePeople).Wait();
+            rowCount += helper.InsertAsync(TableName, Fixture.Connection, transaction, morePeople).Result;
             transaction.Commit();
 
             Person[] actualPeople = Fixture.Connection.Query<Person>($"select * from {TableName}").ToArray();
             Array.Sort(_expectedPeople, (a, b) => a.Name.CompareTo(b.Name));
             Array.Sort(actualPeople, (a, b) => a.Name.CompareTo(b.Name));
             Assert.Equal(actualPeople, _expectedPeople);
+            Assert.Equal(actualPeople.Length, rowCount);
         }
 
         private void CheckTableCreationStatement<DataType>(string[] columnDefinitions)

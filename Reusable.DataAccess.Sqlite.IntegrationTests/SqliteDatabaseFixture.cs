@@ -14,7 +14,7 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
 
         public SqliteDatabaseFixture()
         {
-            Connection = new SqliteDatabaseCreationHelper().OpenOrCreateDatabase("sqlite-db.dat");
+            Connection = new SqliteDatabaseCreationHelper<object>().OpenOrCreateDatabase("sqlite-db.dat");
             Assert.NotNull(Connection);
             Connection.Open();
             DropDatabase(Connection);
