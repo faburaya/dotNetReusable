@@ -22,5 +22,34 @@
             <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
             <param name="statements">Die erzeugten SQL-Anweisungen.</param>
         </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.GenerateInsertStatement(System.String,System.Type)">
+            <summary>
+            Erzeugt eine SQL-Anweisung zum Ausfüllen einer Tabelle.
+            </summary>
+            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+            <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
+            <returns>Eine INSERT-Anweisungen, deren Spalten den Properties des Datentyp <paramref name="objectType"/> entsprechen.</returns>
+        </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.InsertAsync``1(System.String,System.Data.IDbConnection,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Fügt der Tabelle neue Reihe hinzu.
+            </summary>
+            <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
+            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+            <param name="connection">Die Verbindung mit der Datenbank.</param>
+            <param name="objects">Die in die Tabelle hinzufügende Objekte.</param>
+            <remarks>Am Ende des Aufrufs sind die Objekte gespeichert.</remarks>
+        </member>
+        <member name="M:Reusable.DataAccess.Sqlite.SqliteDatabaseCreationHelper.InsertAsync``1(System.String,System.Data.IDbConnection,System.Data.IDbTransaction,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Fügt der Tabelle neue Reihe hinzu.
+            </summary>
+            <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
+            <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+            <param name="connection">Die Verbindung mit der Datenbank.</param>
+            <param name="transaction">Die zu verwendende Transaktion.</param>
+            <param name="objects">Die in die Tabelle hinzufügende Objekten.</param>
+            <remarks>Am Ende des Aufrufs ist die Transaktion immer noch offen, deswegen muss sie geschlossen werden, bevor die zu speichernde Objekte sicherlich zur Verfügung stehen.</remarks>
+        </member>
     </members>
 </doc>

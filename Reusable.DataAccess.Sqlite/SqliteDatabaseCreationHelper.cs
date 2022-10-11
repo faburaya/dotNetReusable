@@ -13,6 +13,35 @@ using Reusable.DataModels;
 
 namespace Reusable.DataAccess.Sqlite;
 
+#region Type handlers for Dapper
+
+abstract class SqliteTypeHandler<T> : SqlMapper.TypeHandler<T>
+{
+    // Parameters are converted by Microsoft.Data.Sqlite
+    public override void SetValue(IDbDataParameter parameter, T value)
+        => parameter.Value = value;
+}
+
+class DateTimeOffsetHandler : SqliteTypeHandler<DateTimeOffset>
+{
+    public override DateTimeOffset Parse(object value)
+        => DateTimeOffset.Parse((string)value);
+}
+
+class GuidHandler : SqliteTypeHandler<Guid>
+{
+    public override Guid Parse(object value)
+        => Guid.Parse((string)value);
+}
+
+class TimeSpanHandler : SqliteTypeHandler<TimeSpan>
+{
+    public override TimeSpan Parse(object value)
+        => TimeSpan.Parse((string)value);
+}
+
+#endregion
+
 /// <inheritdoc cref="Common.IDatabaseCreationHelper"/>
 public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
 {
@@ -42,6 +71,10 @@ public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
             { typeof(UInt32).Name, "integer" },
             { typeof(UInt64).Name, "integer" }
         };
+
+        SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
+        SqlMapper.AddTypeHandler(new GuidHandler());
+        SqlMapper.AddTypeHandler(new TimeSpanHandler());
     }
 
     /// <inheritdoc/>
@@ -135,6 +168,72 @@ public class SqliteDatabaseCreationHelper : Common.IDatabaseCreationHelper
         }
 
         statements[0] = $"create table if not exists {tableName} ({columnDefinitions});";
+    }
+
+    /// <summary>
+    /// Erzeugt eine SQL-Anweisung zum Ausfüllen einer Tabelle.
+    /// </summary>
+    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+    /// <param name="objectType">Der Datentyp, dessen Objekte in der Tabelle gespeichert werden.</param>
+    /// <returns>Eine INSERT-Anweisungen, deren Spalten den Properties des Datentyp <paramref name="objectType"/> entsprechen.</returns>
+    private static string GenerateInsertStatement(string tableName, Type objectType)
+    {
+        PropertyInfo[] allPublicProperties = objectType.GetProperties();
+        string[] columnsNames =
+            (from propertyInfo in allPublicProperties select propertyInfo.Name).ToArray();
+
+        StringBuilder buffer = new($"insert into {tableName} (");
+        for (int idx = 0; idx < columnsNames.Length; ++idx)
+        {
+            buffer.Append(columnsNames[idx]);
+            buffer.Append((idx < columnsNames.Length - 1) ? ',' : ')');
+        }
+
+        buffer.Append(" values (");
+        for (int idx = 0; idx < columnsNames.Length; ++idx)
+        {
+            buffer.Append('@');
+            buffer.Append(columnsNames[idx]);
+            buffer.Append((idx < columnsNames.Length - 1) ? ',' : ')');
+        }
+
+        return buffer.ToString();
+    }
+
+    /// <summary>
+    /// Fügt einer Tabelle neue Reihe hinzu.
+    /// </summary>
+    /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
+    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+    /// <param name="connection">Die Verbindung mit der Datenbank.</param>
+    /// <param name="objects">Die in die Tabelle hinzufügende Objekte.</param>
+    /// <remarks>Am Ende des Aufrufs sind die Objekte gespeichert.</remarks>
+    public async Task InsertAsync<DataType>(string tableName,
+                                            IDbConnection connection,
+                                            IEnumerable<DataType> objects)
+    {
+        string statement = GenerateInsertStatement(tableName, typeof(DataType));
+        IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted);
+        await connection.ExecuteAsync(statement, objects, transaction);
+        transaction.Commit();
+    }
+
+    /// <summary>
+    /// Fügt einer Tabelle neue Reihe hinzu.
+    /// </summary>
+    /// <typeparam name="DataType">Der zu speichernde Datentyp.</typeparam>
+    /// <param name="tableName">Der vorgegebene Name der Tabelle.</param>
+    /// <param name="connection">Die Verbindung mit der Datenbank.</param>
+    /// <param name="transaction">Die zu verwendende Transaktion.</param>
+    /// <param name="objects">Die in die Tabelle hinzufügende Objekten.</param>
+    /// <remarks>Am Ende des Aufrufs ist die Transaktion immer noch offen, deswegen muss sie geschlossen werden, bevor die zu speichernde Objekte sicherlich zur Verfügung stehen.</remarks>
+    public async Task InsertAsync<DataType>(string tableName,
+                                            IDbConnection connection,
+                                            IDbTransaction transaction,
+                                            IEnumerable<DataType> objects)
+    {
+        string statement = GenerateInsertStatement(tableName, typeof(DataType));
+        await connection.ExecuteAsync(statement, objects, transaction);
     }
 
 }// end of class SqliteDatabaseCreationHelper

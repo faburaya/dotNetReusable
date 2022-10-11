@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -6,12 +7,14 @@ using Dapper;
 using Xunit;
 
 using Reusable.DataModels;
+using System.Transactions;
+using System.Data;
 
 namespace Reusable.DataAccess.Sqlite.IntegrationTests
 {
     public class SqliteDatabaseCreationHelperTest : IDisposable
     {
-        private string TableName => "MeineTabelle";
+        private static string TableName => "MeineTabelle";
 
         private SqliteDatabaseFixture Fixture { get; }
 
@@ -155,6 +158,58 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
             );
         }
 
+        [Fact]
+        public void Insert_WhenEmptyList_ThenDoNothing()
+        {
+            SqliteDatabaseCreationHelper helper = new();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
+
+            helper.InsertAsync(TableName, Fixture.Connection, Array.Empty<Person>()).Wait();
+            int rowCount = Fixture.Connection.Query<int>($"select count(1) from {TableName}").First();
+            Assert.Equal(0, rowCount);
+        }
+
+        private static readonly Person[] _expectedPeople = new[] {
+            new Person(1, "Paloma Farah", 'F', DateTime.Now, true, 1.65f, Guid.NewGuid(), null),
+            new Person(1, "Andressa Rabah", 'F', DateTime.Now, true, 1.62f, Guid.NewGuid(), null),
+            new Person(1, "Larissa Barbosa", 'F', DateTime.Now, true, 1.60f, Guid.NewGuid(), null),
+        };
+
+        [Fact]
+        public void Insert_WhenObjectsAvailable_ThenInsertThem()
+        {
+            SqliteDatabaseCreationHelper helper = new();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
+
+            helper.InsertAsync(TableName, Fixture.Connection, _expectedPeople).Wait();
+            Person[] actualPeople = Fixture.Connection.Query<Person>($"select * from {TableName}").ToArray();
+            Array.Sort(_expectedPeople, (a, b) => a.Name.CompareTo(b.Name));
+            Array.Sort(actualPeople, (a, b) => a.Name.CompareTo(b.Name));
+            Assert.Equal(actualPeople, _expectedPeople);
+        }
+
+        [Fact]
+        public void Insert_WhenTransactionProvided_ThenInsertWithinTransaction()
+        {
+            SqliteDatabaseCreationHelper helper = new();
+            Assert.True(
+                helper.CreateTableIfNotExistentAsync<Person>(TableName, Fixture.Connection).Result);
+
+            using IDbTransaction transaction = Fixture.Connection.BeginTransaction();
+            Person[] somePeople = _expectedPeople.Take(_expectedPeople.Length / 2).ToArray();
+            helper.InsertAsync(TableName, Fixture.Connection, transaction, somePeople).Wait();
+            Person[] morePeople = _expectedPeople.Skip(somePeople.Length).ToArray();
+            helper.InsertAsync(TableName, Fixture.Connection, transaction, morePeople).Wait();
+            transaction.Commit();
+
+            Person[] actualPeople = Fixture.Connection.Query<Person>($"select * from {TableName}").ToArray();
+            Array.Sort(_expectedPeople, (a, b) => a.Name.CompareTo(b.Name));
+            Array.Sort(actualPeople, (a, b) => a.Name.CompareTo(b.Name));
+            Assert.Equal(actualPeople, _expectedPeople);
+        }
+
         private void CheckTableCreationStatement<DataType>(string[] columnDefinitions)
         {
             SqliteSchema actualTable = Fixture.ReadActualTableSchemaFromDatabase(TableName);
@@ -264,24 +319,15 @@ namespace Reusable.DataAccess.Sqlite.IntegrationTests
         public int Number { get; set; }
     }
 
-    class Person
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        public char Gender { get; set; }
-
-        public DateTime BirthDate { get; set; }
-
-        public bool IsAlive { get; set; }
-
-        public float Height { get; set; }
-
-        public Guid UniversalId { get; set; }
-
-        public byte[] Picture { get; set; }
-    }
+    record struct Person(
+        int Id,
+        string Name,
+        char Gender,
+        DateTime BirthDate,
+        bool IsAlive,
+        float Height,
+        Guid UniversalId,
+        byte[] Picture);
 
     #endregion
 
